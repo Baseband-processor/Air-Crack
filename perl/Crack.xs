@@ -9,7 +9,8 @@
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
 typedef wif  WIF;
-
+struct timespec TIME;
+	
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
  
@@ -64,20 +65,20 @@ net_open(interface)
 
 int
 net_send(s, command, argoument, length)
-	int s,
-	int command,
+	int s
+	int command
 	void *argoument
 	int length
 
 int
-net_read_exact(s, argoument,length)
+net_read_exact(s, argoument,  length)
 	int s
 	void *argoument
 	int length
 
 int
-net_get(s,argoument, length)
-	int s,
+net_get(s, argoument, length)
+	int s
 	void *argoument
 	int length
 
@@ -87,20 +88,19 @@ wi_open(interface)
 	char * interface
 
 
-
 int
-wi_write(struct wif * wi,struct timespec * ts,int dlt,unsigned char * h80211,int len,struct tx_info * ti)
-	struct wif * wi
-	struct timespec * ts
+wi_write(wi,ts,dlt,h80211,len,ti)
+	WIF * wi
+	TIME * ts
 	int dlt
 	unsigned char * h80211
 	int len
 	struct tx_info * ti
 
 int 
-wi_set_channel(struct wif * wi, int chan)
-	struct wif * wi
-	int chan
+wi_set_channel(wi, channel)
+	WIF *wi
+	int channel
 int 
 wi_set_ht_channel(struct wif * wi, int chan, unsigned int htval)
 	struct wif * wi
