@@ -1,0 +1,10 @@
+Changes
+lib/Air/Crack.pm
+Crack.xs
+Makefile.PL
+MANIFEST
+README
+TODO
+typemap
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
