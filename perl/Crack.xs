@@ -90,12 +90,12 @@ wi_open(interface)
 
 
 int
-wi_write(wi,ts,dlt,h80211,len,ti)
+wi_write(wi, ts, dlt, h80211, length, ti)
 	WIF * wi
 	TIME * ts
 	int dlt
 	unsigned char * h80211
-	int len
+	int length
 	Tx * ti
 
 int 
@@ -103,7 +103,7 @@ wi_set_channel(wi, channel)
 	WIF *wi
 	int channel
 int 
-wi_set_ht_channel(wi, int channel, unsigned int htval)
+wi_set_ht_channel(wi, channel, htval)
 	WIF * wi
 	int channel
 	unsigned int htval
