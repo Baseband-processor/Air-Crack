@@ -161,19 +161,20 @@ wi_set_mtu(wi, mtu)
 void
 PTW_freeattackstate(state)
 	PTW_attackstate *state
-int
-PTW_addsession(PTW_attackstate *, uint8_t *, uint8_t *, int *, int)
 
-int
-PTW_computeKey(PTW_attackstate *, uint8_t *, int, int, int *, int[][PTW_n], int attacks)
+#int
+#PTW_computeKey(PTW_attackstate *, uint8_t *, int, int, int *, int[][PTW_n], int attacks)
 
-float get_80211n_rate(const int width,
-					  const int is_short_GI,
-					  const int mcs_index)
+float
+get_80211n_rate(width,  is_short_GI,  mcs_index)
+	const int width,
+	const int is_short_GI,
+	const int mcs_index
 
-float get_80211ac_rate(const int width,
-					   const int is_short_GI,
-					   const int mcs_idx,
-					   const int amount_ss)
-
+float 
+get_80211ac_rate(width, is_short_GI, mcs_idx, amount_ss)
+	const int width,   
+	const int is_short_GI,
+	const int mcs_idx, 
+	const int amount_ss
 
