@@ -1,0 +1,170 @@
+
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+
+#include "C/lib/osdep/aircrack_ng_airpcap.h"
+#include "C/include/aircrack-ng/osdep/common.h"
+#include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
+#include "C/include/aircrack-ng/support/mcs_index_rates.h"
+
+typedef wif  WIF;
+
+MODULE = Air::Crack   PACKAGE = Air::Crack
+PROTOTYPES: DISABLE
+ 
+void 
+airpcap_close(nl)
+	void nl
+
+int 
+airpcap_get_mac(mac)
+	void * mac
+
+int
+airpcap_set_mac(mac)
+	void * mac
+
+int
+airpcap_sniff(buf, length, ri)
+	void * buf
+	int length
+	struct rx_info * ri
+
+int 
+airpcap_inject(buf, length, ti)
+	void * buf
+	int length
+	struct tx_info * ti
+
+int
+airpcap_init(parameter)
+	char *parameter
+
+int
+airpcap_set_chan(channel)
+	int channel
+int
+isAirpcapDevice(interface)
+	const char * interface
+
+int 
+getFrequencyFromChannel(channel)
+	int channel
+
+int
+getChannelFromFrequency(frequency)
+	int frequency
+
+
+
+WIF * 
+net_open(interface)
+	char * interface
+
+int
+net_send(s, command, argoument, length)
+	int s,
+	int command,
+	void *argoument
+	int length
+
+int
+net_read_exact(s, argoument,length)
+	int s
+	void *argoument
+	int length
+
+int
+net_get(s,argoument, length)
+	int s,
+	void *argoument
+	int length
+
+
+WIF * 
+wi_open(interface)
+	char * interface
+
+
+
+int
+wi_write(struct wif * wi,struct timespec * ts,int dlt,unsigned char * h80211,int len,struct tx_info * ti)
+	struct wif * wi
+	struct timespec * ts
+	int dlt
+	unsigned char * h80211
+	int len
+	struct tx_info * ti
+
+int 
+wi_set_channel(struct wif * wi, int chan)
+	struct wif * wi
+	int chan
+int 
+wi_set_ht_channel(struct wif * wi, int chan, unsigned int htval)
+	struct wif * wi
+	int chan
+	unsigned int htval
+int 
+wi_get_channel(struct wif * wi)
+	struct wif * wi
+
+int
+wi_set_freq(struct wif * wi, int freq)
+	struct wif * wi
+	int freq
+
+int
+wi_get_freq(struct wif * wi)
+	struct wif * wi
+
+void
+wi_close(struct wif * wi)
+	struct wif * wi
+
+char *
+wi_get_ifname(struct wif * wi)
+	struct wif * wi
+
+int 
+wi_get_mac(struct wif * wi, unsigned char * mac)
+	struct wif * wi
+	unsigned char * mac
+
+int 
+wi_set_mac(struct wif * wi, unsigned char * mac)
+
+int 
+wi_get_rate(struct wif * wi)
+
+int 
+wi_set_rate(struct wif * wi, int rate)
+int
+wi_get_monitor(struct wif * wi)
+
+int
+wi_get_mtu(struct wif * wi)
+
+int 
+wi_set_mtu(struct wif * wi, int mtu)
+
+void
+PTW_freeattackstate(PTW_attackstate *)
+
+int
+PTW_addsession(PTW_attackstate *, uint8_t *, uint8_t *, int *, int)
+
+int
+PTW_computeKey(PTW_attackstate *, uint8_t *, int, int, int *, int[][PTW_n], int attacks)
+
+float get_80211n_rate(const int width,
+					  const int is_short_GI,
+					  const int mcs_index)
+
+float get_80211ac_rate(const int width,
+					   const int is_short_GI,
+					   const int mcs_idx,
+					   const int amount_ss)
+
+
