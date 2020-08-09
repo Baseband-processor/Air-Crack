@@ -1,10 +1,12 @@
 use Test;
-BEGIN { plan tests => 2 };
-use Net::Lorcon2 qw(:subs);
-my @cards = lorcon_list_drivers();
-if( $#cards < 1 ){
-  return -1;
+BEGIN { plan tests => 5 };
+
+use Net::Interface;
+use Air::Crack qw(:aircrack);
+
+foreach( Net::Interface->interfaces() ){
+  if( isAirpcapDevice($_) == -1 || isAirpcapDevice($_) != 0){
+    return -1;
   }else{
-  return 1;
+    ok(1); 
   }
-  ok(1);
