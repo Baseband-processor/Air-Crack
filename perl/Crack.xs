@@ -8,6 +8,7 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
+typedef PTW_attackstate  PTW_STATE;
 typedef struct wif  WIF;
 typedef struct timespec TIME;
 typedef struct rx_info  Rx;
@@ -138,22 +139,28 @@ wi_set_mac(wi, mac)
 	unsigned char *mac
 	
 int 
-wi_get_rate(struct wif * wi)
+wi_get_rate(wi)
+	WIF *wi
+int 
+wi_set_rate(wi, rate)
+	WIF *wi
+	int rate
+	
+int
+wi_get_monitor(wi)
+	WIF *wi
+	
+int
+wi_get_mtu(wi)
+	WIF *wi
 
 int 
-wi_set_rate(struct wif * wi, int rate)
-int
-wi_get_monitor(struct wif * wi)
-
-int
-wi_get_mtu(struct wif * wi)
-
-int 
-wi_set_mtu(struct wif * wi, int mtu)
-
+wi_set_mtu(wi, mtu)
+	WIF *wi
+	int mtu
 void
-PTW_freeattackstate(PTW_attackstate *)
-
+PTW_freeattackstate(state)
+	PTW_attackstate *state
 int
 PTW_addsession(PTW_attackstate *, uint8_t *, uint8_t *, int *, int)
 
