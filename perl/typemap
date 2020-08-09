@@ -1,6 +1,10 @@
 TYPEMAP
 
-
+PTW_STATE *         T_PTRREF
+WIF *               T_PTRREF
+TIME *              T_PTRREF
+Rx *                T_PTRREF
+Tx *                T_PTRREF
 
 const char *        T_PV
 const u_char *      T_PV
