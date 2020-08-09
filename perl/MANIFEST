@@ -1,5 +1,8 @@
 Changes
 lib/Air/Crack.pm
+t/test-consts.t
+t/test-device-init.t
+t/test-use.t
 Crack.xs
 Makefile.PL
 MANIFEST
