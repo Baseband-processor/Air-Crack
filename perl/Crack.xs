@@ -8,9 +8,11 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
-typedef wif  WIF;
-struct timespec TIME;
-	
+typedef struct wif  WIF;
+typedef struct timespec TIME;
+typedef struct rx_info  Rx;
+typedef struct tx_info  Tx;
+
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
  
@@ -30,13 +32,13 @@ int
 airpcap_sniff(buf, length, ri)
 	void * buf
 	int length
-	struct rx_info * ri
+	Rx * ri
 
 int 
 airpcap_inject(buf, length, ti)
 	void * buf
 	int length
-	struct tx_info * ti
+	Tx * ti
 
 int
 airpcap_init(parameter)
@@ -56,9 +58,7 @@ getFrequencyFromChannel(channel)
 int
 getChannelFromFrequency(frequency)
 	int frequency
-
-
-
+	
 WIF * 
 net_open(interface)
 	char * interface
@@ -95,7 +95,7 @@ wi_write(wi,ts,dlt,h80211,len,ti)
 	int dlt
 	unsigned char * h80211
 	int len
-	struct tx_info * ti
+	Tx * ti
 
 int 
 wi_set_channel(wi, channel)
