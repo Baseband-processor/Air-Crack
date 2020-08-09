@@ -120,21 +120,23 @@ wi_get_freq(wi)
 	WIF * wi
 
 void
-wi_close(struct wif * wi)
-	struct wif * wi
+wi_close(wi)
+	WIF * wi
 
 char *
-wi_get_ifname(struct wif * wi)
-	struct wif * wi
+wi_get_ifname(wi)
+	WIF * wi
 
 int 
-wi_get_mac(struct wif * wi, unsigned char * mac)
-	struct wif * wi
+wi_get_mac(wi, mac)
+	WIF * wi
 	unsigned char * mac
 
 int 
-wi_set_mac(struct wif * wi, unsigned char * mac)
-
+wi_set_mac(wi, mac)
+	WIF *wi
+	unsigned char *mac
+	
 int 
 wi_get_rate(struct wif * wi)
 
