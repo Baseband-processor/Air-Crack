@@ -102,22 +102,22 @@ wi_set_channel(wi, channel)
 	WIF *wi
 	int channel
 int 
-wi_set_ht_channel(struct wif * wi, int chan, unsigned int htval)
-	struct wif * wi
-	int chan
+wi_set_ht_channel(wi, int channel, unsigned int htval)
+	WIF * wi
+	int channel
 	unsigned int htval
 int 
-wi_get_channel(struct wif * wi)
-	struct wif * wi
+wi_get_channel(wi)
+	WIF * wi
 
 int
-wi_set_freq(struct wif * wi, int freq)
-	struct wif * wi
-	int freq
+wi_set_freq(wi, frequency)
+	WIF * wi
+	int frequency
 
 int
-wi_get_freq(struct wif * wi)
-	struct wif * wi
+wi_get_freq(wi)
+	WIF * wi
 
 void
 wi_close(struct wif * wi)
