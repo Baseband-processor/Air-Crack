@@ -160,7 +160,7 @@ wi_set_mtu(wi, mtu)
 	int mtu
 void
 PTW_freeattackstate(state)
-	PTW_attackstate *state
+	PTW_STATE *state
 
 #int
 #PTW_computeKey(PTW_attackstate *, uint8_t *, int, int, int *, int[][PTW_n], int attacks)
