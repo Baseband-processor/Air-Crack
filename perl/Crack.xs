@@ -8,16 +8,17 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
-typedef PTW_attackstate  PTW_STATE;
-typedef struct wif  WIF;
-typedef struct timespec TIME;
-typedef struct rx_info  Rx;
-typedef struct tx_info  Tx;
-typedef struct AP_info  AP;
-typedef struct ST_info  ST;
-typedef struct tm       TM;
-typedef struct session  SESSION;
+typedef PTW_attackstate     PTW_STATE;
+typedef struct wif          WIF;
+typedef struct timespec     TIME;
+typedef struct rx_info      Rx;
+typedef struct tx_info      Tx;
+typedef struct AP_info      AP;
+typedef struct ST_info      ST;
+typedef struct tm           TM;
+typedef struct session      SESSION;
 
+typedef ac_crypto_engine_t  AC_CRYPTO;
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
  
@@ -301,11 +302,23 @@ current_packet_pointer_same_fromToDS_and_source(struct packet_elt * packet);
 static BOOLEAN
 next_packet_pointer_same_fromToDS_and_source(struct packet_elt * packet);
 static BOOLEAN next_packet_pointer_same_fromToDS_and_source_as_current(void);
-static BOOLEAN write_packets(void);
-static BOOLEAN print_statistics(void);
-static char * status_format(int status);
-static int get_average_signal_ap(void);
 
+static BOOLEAN 
+write_packets(void)
+	void void
+
+static BOOLEAN
+print_statistics(void)
+	void void
+	
+static char *
+status_format(status)
+	int status
+	
+static int 
+get_average_signal_ap(void)
+	void void
+	
 void md5cryptsse(unsigned char * buf,
 				 unsigned char * salt,
 				 char * out,
@@ -314,24 +327,39 @@ void SIMDmd5body(vtype * data,
 				 ARCH_WORD_32 * out,
 				 ARCH_WORD_32 * reload_state,
 				 unsigned SSEi_flags)
-void md5_reverse(uint32_t * hash)
-void md5_unreverse(uint32_t * hash)
-
+void 
+md5_reverse(hash)
+	uint32_t * hash
+void 
+md5_unreverse(hash)
+	uint32_t * hash
+	
 void SIMDmd4body(vtype * data,
 				 ARCH_WORD_32 * out,
 				 ARCH_WORD_32 * reload_state,
 				 unsigned SSEi_flags)
-void md4_reverse(uint32_t * hash)
-void md4_unreverse(uint32_t * hash)
-
+void 
+md4_reverse(hash)
+	uint32_t * hash
+void 
+md4_unreverse(hash)
+	uint32_t * hash
+	
 #ifdef SIMD_PARA_SHA1
 void SIMDSHA1body(vtype * data,
 				  ARCH_WORD_32 * out,
 				  ARCH_WORD_32 * reload_state,
 				  unsigned SSEi_flags)
-void sha1_reverse(uint32_t * hash)
-void sha1_unreverse(uint32_t * hash)
-void SIMDSHA256body(vtype * data,
+void
+sha1_reverse(hash)
+	uint32_t * hash
+	
+void
+sha1_unreverse(hash)
+	uint32_t * hash
+	
+void
+SIMDSHA256body(vtype * data,
 					ARCH_WORD_32 * out,
 					ARCH_WORD_32 * reload_state,
 					unsigned SSEi_flags)
@@ -347,15 +375,29 @@ void SIMDSHA512body(vtype * data,
 void sha384_reverse(ARCH_WORD_64 * hash)
 void sha384_unreverse(ARCH_WORD_64 * hash)
 void sha512_reverse(ARCH_WORD_64 * hash)
-void sha512_unreverse(void)
-void init_atoi(void)
 
-int init_wpapsk(ac_crypto_engine_t * engine,
-				const wpapsk_password key[MAX_KEYS_PER_CRYPT_SUPPORTED],
-				int nparallel,
-				int threadid)
+void 
+sha512_unreverse(void)
+	void void
 
+#int 
+#init_wpapsk(engine, wpapsk_password key[MAX_KEYS_PER_CRYPT_SUPPORTED], nparallel, thread)
+	#AC_CRYPTO *engine
+	#const wpapsk_password key[MAX_KEYS_PER_CRYPT_SUPPORTED
+	#int nparallel
+	#int thread
+	
+void 
+dump_text(in, length)
+	void *in
+	int length
 
-void dump_text(void * in, int len)
-void dump_stuff(void * x, unsigned int size)
-void dump_stuff_msg(const void * msg, void * x, unsigned int size)
+void 
+dump_stuff(x, size)
+	void *x
+	unsigned int size
+void
+dump_stuff_msg(message, x,  size)
+	const void *message
+	void *x
+	unsigned int size
