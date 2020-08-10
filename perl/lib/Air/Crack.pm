@@ -62,6 +62,42 @@ our %EXPORT_TAGS = (
       PTW_freeattackstate
       get_80211n_rate
       get_80211ac_rate
+      dump_write_csv
+      dump_write_airodump_ng_logcsv_add_ap
+      dump_write_airodump_ng_logcsv_add_client
+      get_manufacturer_from_string
+      dump_write_kismet_netxml
+      dump_write_kismet_csv
+      ac_session_new
+      ac_session_destroy
+      ac_session_free
+      ac_session_init
+      ac_session_set_working_directory
+      ac_session_set_bssid
+      ac_session_set_wordlist_settings
+      ac_session_set_amount_arguments
+      ac_session_load
+      ac_session_save
+      ac_session_from_argv
+      getBits
+      write_packets
+      print_statistics
+      status_format
+      get_average_signal_ap
+      md5cryptsse
+      SIMDmd5body
+      md5_reverse
+      md5_unreverse
+      SIMDmd4body
+      md4_reverse
+      md4_unreverse
+      sha1_reverse
+      sha1_unreverse
+      sha512_unreverse
+      dump_text
+      dump_stuff
+      dump_stuff_msg
+      
     )],
 
 );
