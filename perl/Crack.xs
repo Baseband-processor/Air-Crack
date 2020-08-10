@@ -16,6 +16,7 @@ typedef struct tx_info  Tx;
 typedef struct AP_info  AP;
 typedef struct ST_info  ST;
 typedef struct tm       TM;
+typedef struct session  SESSION;
 
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
@@ -213,37 +214,72 @@ dump_write_kismet_netxml(ap_1st,  st_1st, encryption, airodump_start_time)
 	unsigned int encryption
 	char * airodump_start_time
 		
-int dump_write_kismet_csv(struct AP_info * ap_1st,
-						  struct ST_info * st_1st,
-						  unsigned int f_encrypt)
+int 
+dump_write_kismet_csv( ap_1st,  st_1st, encryption)
+	AP * ap_1st
+	ST * st_1st
+	unsigned int encryption
+	
+
+SESSION *
+ac_session_new(void)
+	void void
+	
+int 
+ac_session_destroy(s)
+	SESSION *s
+	
+void 
+ac_session_free(s)
+	SESSION **s
+	
+int 
+ac_session_init(s)
+	SESSION *s
+
+int
+ac_session_set_working_directory(session, directory)
+	SESSION *session
+	const char *directory
+	
+int 
+ac_session_set_bssid( session, bssid)
+	SESSION * session
+	const char *bssid
+	
+int
+ac_session_set_wordlist_settings(session, wordlist)
+	SESSION *session
+	const char * wordlist
+	
+int
+ac_session_set_amount_arguments(session, argouments)
+	SESSION *session
+	const char *argouments
+
+SESSION * 
+ac_session_load(filename)
+	const char * filename
+
+int
+ac_session_save(s, pos, nb_keys_tried)
+	SESSION *s
+	uint64_t pos
+	long long int nb_keys_tried
+
+SESSION *
+ac_session_from_argv(argc, argv, filename)
+	const int argc
+	char ** argv
+	const char * filename
 
 
-struct session * ac_session_new(void)
-int ac_session_destroy(struct session * s);
-void ac_session_free(struct session ** s);
-int ac_session_init(struct session * s);
+int
+getBits(b, from,length)
+	unsigned char b
+	int from
+	int length
 
-// Validate and set the different values in the session structure
-int ac_session_set_working_directory(struct session * session,
-									 const char * str);
-int ac_session_set_bssid(struct session * session, const char * str);
-int ac_session_set_wordlist_settings(struct session * session,
-									 const char * str);
-int ac_session_set_amount_arguments(struct session * session, const char * str);
-
-// Load from file
-struct session * ac_session_load(const char * filename);
-
-// Save to file
-int ac_session_save(struct session * s,
-					uint64_t pos,
-					long long int nb_keys_tried);
-
-struct session *
-ac_session_from_argv(const int argc, char ** argv, const char * filename);
-
-static void usage(void);
-static int getBits(unsigned char b, int from, int length);
 static FILE * openfile(const char * filename, const char * mode, int fatal);
 static BOOLEAN write_packet(FILE * file, struct packet_elt * packet);
 static FILE * init_new_pcap(const char * filename);
@@ -303,10 +339,7 @@ void sha224_reverse(uint32_t * hash)
 void sha224_unreverse(uint32_t * hash)
 void sha256_reverse(uint32_t * hash)
 void sha256_unreverse(void)
-#endif
 
-#ifdef SIMD_COEF_64
-#define SHA512_ALGORITHM_NAME BITS " " SIMD_TYPE " " SHA512_N_STR
 void SIMDSHA512body(vtype * data,
 					ARCH_WORD_64 * out,
 					ARCH_WORD_64 * reload_state,
