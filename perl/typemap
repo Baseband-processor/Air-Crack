@@ -5,6 +5,12 @@ WIF *               T_PTRREF
 TIME *              T_PTRREF
 Rx *                T_PTRREF
 Tx *                T_PTRREF
+AP *                T_PTRREF
+ST *                T_PTRREF
+SESSION *           T_PTRREF
+SESSION **          T_PTRREF
+TM *                T_PTRREF
+AC_CRYPTO *         T_PTRREF
 
 const char *        T_PV
 const u_char *      T_PV
