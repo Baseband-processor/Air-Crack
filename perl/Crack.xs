@@ -13,6 +13,9 @@ typedef struct wif  WIF;
 typedef struct timespec TIME;
 typedef struct rx_info  Rx;
 typedef struct tx_info  Tx;
+typedef struct AP_info  AP;
+typedef struct ST_info  ST;
+typedef struct tm       TM;
 
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
@@ -178,29 +181,44 @@ get_80211ac_rate(width, is_short_GI, mcs_idx, amount_ss)
 	const int mcs_idx, 
 	const int amount_ss
 
-int dump_write_csv(struct AP_info * ap_1st,
-				   struct ST_info * st_1st,
-				   unsigned int f_encrypt);
-int dump_write_airodump_ng_logcsv_add_ap(const struct AP_info * ap_cur,
-										 const int32_t ri_power,
-										 struct tm * tm_gpstime,
-										 float * gps_loc);
-int dump_write_airodump_ng_logcsv_add_client(const struct AP_info * ap_cur,
-											 const struct ST_info * st_cur,
-											 const int32_t ri_power,
-											 struct tm * tm_gpstime,
-											 float * gps_loc);
-char * get_manufacturer_from_string(char * buffer);
-int dump_write_kismet_netxml(struct AP_info * ap_1st,
-							 struct ST_info * st_1st,
-							 unsigned int f_encrypt,
-							 char * airodump_start_time);
+int
+dump_write_csv(first_ap, first_st, encryption)
+	AP * first_ap
+	ST * first_st
+	unsigned int encryption
+	
+int 
+dump_write_airodump_ng_logcsv_add_ap(ap_cur, ri_power, tm_gpstime, gps_loc) 
+	const AP * ap_cur
+	const int32_t ri_power
+	TM * tm_gpstime,
+	float * gps_loc
+	
+int 
+dump_write_airodump_ng_logcsv_add_client(ap_cur, st_cur, ri_power, tm_gpstime, gps_location)
+	const AP * ap_cur
+	const ST * st_cur
+	const int32_t ri_power
+	TM * tm_gpstime
+	float * gps_location
+
+char *
+get_manufacturer_from_string(buffer)
+	char * buffer
+	
+int
+dump_write_kismet_netxml(ap_1st,  st_1st, encryption, airodump_start_time)
+	AP * ap_1st
+	ST * st_1st
+	unsigned int encryption
+	char * airodump_start_time
+		
 int dump_write_kismet_csv(struct AP_info * ap_1st,
 						  struct ST_info * st_1st,
-						  unsigned int f_encrypt);
+						  unsigned int f_encrypt)
 
 
-struct session * ac_session_new(void);
+struct session * ac_session_new(void)
 int ac_session_destroy(struct session * s);
 void ac_session_free(struct session ** s);
 int ac_session_init(struct session * s);
