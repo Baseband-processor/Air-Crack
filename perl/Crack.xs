@@ -105,8 +105,8 @@ typedef struct{
 	uint32_t ri_rate;
 	uint32_t ri_antenna;
 }rx_info;
-typedef struct rx_info     * Rx;
 
+typedef struct rx_info     * Rx;
 
 typedef struct {
 	int (*wi_read)(struct wif * wi,
