@@ -8,9 +8,7 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
-typedef int (*rc4test_func)(uint8_t * key,int keylen,uint8_t * iv,uint8_t * keystream)
-
-typedef rc4test_func *RC4TEST;
+typedef int rc4test_func *RC4TEST;
 
 typedef struct {
 	char mcs_index; 
