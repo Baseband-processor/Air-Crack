@@ -8,6 +8,14 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
+typedef struct {
+	unsigned char version; 
+	unsigned char state; 
+	unsigned char ap_setup_locked; 
+	unsigned int meth; 
+}WPS_INFO;
+	
+typedef WPS_INFO         *WPS_INFORMATION;
 typedef int rc4test_func *RC4TEST;
 
 typedef struct {
@@ -116,7 +124,7 @@ typedef struct {
 	uint8_t * data_root; 
 	int marked;
 	int marked_color;
-	struct WPS_info wps;
+	WPS_INFORMATION wps;
 }AP_INFO;
 
 typedef struct AP_info     * AP;
