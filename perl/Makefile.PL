@@ -1,3 +1,5 @@
+BEGIN{
+
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -12,3 +14,6 @@ WriteMakefile(
    PREREQ_PM => {
   },
 );
+
+
+}
