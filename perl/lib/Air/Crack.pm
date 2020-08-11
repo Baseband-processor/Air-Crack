@@ -6,7 +6,7 @@ require  v5.22.1;
 use strict;
 use warnings;
 
-use constant PACKET_302 => "HTTP/1.1 302 Found\r\n\
+use costant  PACKET_302 => "HTTP/1.1 302 Found\r\n\
 Location: https://www.google.com/?gws_rd=ssl\r\n\
 Cache-Control: private\r\n\
 Content-Type: text/html; charset=UTF-8\r\n\
@@ -23,6 +23,8 @@ Alternate-Protocol: 80:quic,p=0.02\r\n\
 The document has moved\n\
 <A HREF=\"https://www.google.com/?gws_rd=ssl\">here</A>.\r\n\
 </BODY></HTML>\r\n";
+
+
 
 our $VERSION = '0.03';
 use base qw(Exporter DynaLoader);
@@ -99,11 +101,14 @@ our %EXPORT_TAGS = (
       dump_stuff_msg
       
     )],
-
+   packets => [qw(
+      PACKET_302
+   )],
 );
 
 our @EXPORT = (
    @{ $EXPORT_TAGS{aircrack} },
+   @{ $EXPORT_TAGS{packets} },
 
 );
 
