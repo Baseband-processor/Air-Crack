@@ -58,8 +58,8 @@ typedef struct wif         * WIF;
 typedef struct timespec    * TIME;
 typedef struct rx_info     * Rx;
 typedef struct tx_info     * Tx;
-typedef struct ST_info     * ST;
 
+typedef struct timeval     *TIMEVALUATE;
 typedef struct {
 	struct AP_info * prev; 
 	struct AP_info * next; 
@@ -87,7 +87,7 @@ typedef struct {
 	unsigned long nb_data;  
 	unsigned long nb_data_old;  
 	int nb_dataps;  
-	struct timeval tv;  
+	TIMEVALUATE tv;  
 	char * manuf;  
 	unsigned long long timestamp; 
 	uint8_t bssid[6]; 
@@ -113,9 +113,9 @@ typedef struct {
 	int fcapt; 
 	int fmiss; 
 	unsigned int last_seq; 
-	struct timeval ftimef; 
-	struct timeval ftimel; 
-	struct timeval ftimer; 
+	TIMEVALUATE ftimef; 
+	TIMEVALUATE ftimel; 
+	TIMEVALUATE ftimer; 
 	char * key; 
 	char decloak_detect;
 	struct pkt_buf * packets; 
@@ -128,6 +128,42 @@ typedef struct {
 }AP_INFO;
 
 typedef struct AP_info     * AP;
+
+
+typedef struct {
+	struct ST_info * prev; 
+	struct ST_info * next; 
+	AP * base; 
+	uint8_t stmac[6]; 
+	struct WPA_hdsk wpa; 
+	char * manuf; 
+	time_t tinit, tlast; 
+	unsigned long nb_pkt; 
+	uint8_t essid[ESSID_LENGTH + 1]; 
+	int essid_length; 
+	int probe_index; 
+	char probes[NB_PRB][MAX_IE_ELEMENT_SIZE]; 
+	int ssid_length[NB_PRB]; 
+	int power; 
+	int best_power; 
+	int rate_to; 
+	int rate_from; 
+	TIMEVALUATE ftimer; 
+	int missed; 
+	unsigned int lastseq; 
+	int wpatype; 
+	int wpahash; 
+	int wep; 
+	int qos_to_ds; 
+	int qos_fr_ds; 
+	int channel; 
+	float gps_loc_min[5]; 
+	float gps_loc_max[5]; 
+	float gps_loc_best[5]; 
+}ST_info;
+
+typedef struct ST_info     * ST;
+
 
 typedef struct tm          * TM;
 typedef struct session     * SESSION;
