@@ -51,7 +51,10 @@ airpcap_inject(buf, length, ti)
 	void * buf
 	int length
 	Tx * ti
-
+	   CODE:
+             RETVAL = airpcap_inject(&buf, length, &ti);
+        OUTPUT:
+          RETVAL
 int
 airpcap_init(parameter)
 	char *parameter
@@ -248,21 +251,36 @@ int
 ac_session_set_working_directory(session, directory)
 	SESSION *session
 	const char *directory
+	      CODE:
+		RETVAL = ac_session_set_working_directory(&session, &directory);
+        OUTPUT:
+          RETVAL
 	
 int 
 ac_session_set_bssid( session, bssid)
 	SESSION * session
 	const char *bssid
-	
+		CODE:
+		  RETVAL = ac_session_set_bssid(&session, &bssid);
+        OUTPUT:
+          RETVAL
 int
 ac_session_set_wordlist_settings(session, wordlist)
 	SESSION *session
 	const char * wordlist
-	
+		CODE:
+		  RETVAL = ac_session_set_wordlist_settings(&session, &wordlist);
+        OUTPUT:
+          RETVAL
+	  
 int
 ac_session_set_amount_arguments(session, argouments)
 	SESSION *session
 	const char *argouments
+		CODE:
+		  RETVAL = ac_session_set_wordlist_settings(&session, &argouments);
+        OUTPUT:
+          RETVAL
 
 SESSION * 
 ac_session_load(filename)
