@@ -557,7 +557,9 @@ openfile(filename, mode, fatal)
 	int fatal
 
 static BOOLEAN
-write_packet(FILE * file, struct packet_elt * packet)
+write_packet(file, packet)
+	FILE * file
+	PACKET_ELT * packet
 
 static FILE *
 init_new_pcap(filename)
@@ -632,10 +634,11 @@ get_average_signal_ap(void)
 	void void
 	
 void 
-md5cryptsse(unsigned char * buf, unsigned char * salt, char * out, unsigned int md5_type)
-
-void
-SIMDmd5body(vtype * data, ARCH_WORD_32 * out,  ARCH_WORD_32 * reload_state, unsigned SSEi_flags)
+md5cryptsse(buf, salt, out, md5_type)
+	unsigned char * buf
+	unsigned char * salt
+	char * out
+	unsigned int md5_type
 
 void 
 md5_reverse(hash)
@@ -643,8 +646,6 @@ md5_reverse(hash)
 void 
 md5_unreverse(hash)
 	uint32_t * hash
-	
-void SIMDmd4body(vtype * data, ARCH_WORD_32 * out, ARCH_WORD_32 * reload_state,unsigned SSEi_flags)
 
 void 
 md4_reverse(hash)
@@ -652,8 +653,6 @@ md4_reverse(hash)
 void 
 md4_unreverse(hash)
 	uint32_t * hash
-	
-void SIMDSHA1body(vtype * data, ARCH_WORD_32 * out, ARCH_WORD_32 * reload_state, unsigned SSEi_flags)
 
 void
 sha1_reverse(hash)
@@ -663,8 +662,6 @@ void
 sha1_unreverse(hash)
 	uint32_t * hash
 	
-void
-SIMDSHA256body(vtype * data, ARCH_WORD_32 * out, ARCH_WORD_32 * reload_state, unsigned SSEi_flags)
 
 void 
 sha224_reverse(hash)
@@ -677,9 +674,6 @@ sha256_reverse(hash)
 	uint32_t * hash
 void
 sha256_unreverse(void)
-
-void 
-SIMDSHA512body(vtype * data, ARCH_WORD_64 * out, ARCH_WORD_64 * reload_state, unsigned SSEi_flags)
 
 void
 sha384_reverse(ARCH_WORD_64 * hash)
