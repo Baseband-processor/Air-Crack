@@ -17,8 +17,10 @@ typedef struct AP_info      AP;
 typedef struct ST_info      ST;
 typedef struct tm           TM;
 typedef struct session      SESSION;
+typedef struct packet_elt   PACKET_ELF;
 
 typedef ac_crypto_engine_t  AC_CRYPTO;
+
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
  
@@ -281,27 +283,65 @@ getBits(b, from,length)
 	int from
 	int length
 
-static FILE * openfile(const char * filename, const char * mode, int fatal);
-static BOOLEAN write_packet(FILE * file, struct packet_elt * packet);
-static FILE * init_new_pcap(const char * filename);
-static FILE * open_existing_pcap(const char * filename);
-static BOOLEAN read_packets(void);
-static BOOLEAN initialize_linked_list(void);
-static BOOLEAN add_node_if_not_complete(void);
-static void set_node_complete(void);
-static void remove_last_uncomplete_node(void);
-static void reset_current_packet_pointer(void);
-static BOOLEAN reset_current_packet_pointer_to_ap_packet(void);
-static BOOLEAN reset_current_packet_pointer_to_client_packet(void);
-static BOOLEAN next_packet_pointer(void);
-static BOOLEAN next_packet_pointer_from_ap(void);
-static BOOLEAN next_packet_pointer_from_client(void);
-static int compare_SN_to_current_packet(struct packet_elt * packet);
+static FILE *
+openfile(const char * filename, const char * mode, int fatal)
+
 static BOOLEAN
-current_packet_pointer_same_fromToDS_and_source(struct packet_elt * packet);
+write_packet(FILE * file, struct packet_elt * packet)
+
+static FILE *
+init_new_pcap(const char * filename)
+
+static FILE *
+open_existing_pcap(const char * filename)
+
 static BOOLEAN
-next_packet_pointer_same_fromToDS_and_source(struct packet_elt * packet);
-static BOOLEAN next_packet_pointer_same_fromToDS_and_source_as_current(void);
+read_packets(void)
+
+static BOOLEAN
+initialize_linked_list(void)
+
+static BOOLEAN
+add_node_if_not_complete(void)
+
+static void
+set_node_complete(void)
+
+static void
+remove_last_uncomplete_node(void)
+
+static void
+reset_current_packet_pointer(void)
+
+static BOOLEAN
+reset_current_packet_pointer_to_ap_packet(void)
+
+static BOOLEAN
+reset_current_packet_pointer_to_client_packet(void)
+
+static BOOLEAN
+next_packet_pointer(void)
+
+static BOOLEAN
+next_packet_pointer_from_ap(void)
+
+static BOOLEAN
+next_packet_pointer_from_client(void)
+
+static int
+compare_SN_to_current_packet(packet)
+	PACKET_ELT *packet
+	
+static BOOLEAN
+current_packet_pointer_same_fromToDS_and_source(packet)
+	PACKET_ELT * packet
+	
+static BOOLEAN
+next_packet_pointer_same_fromToDS_and_source(packet)
+	PACKET_ELT *packet
+	
+static BOOLEAN 
+next_packet_pointer_same_fromToDS_and_source_as_current(void)
 
 static BOOLEAN 
 write_packets(void)
