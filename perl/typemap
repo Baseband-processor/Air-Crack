@@ -10,6 +10,7 @@ ST *                T_PTRREF
 SESSION *           T_PTRREF
 SESSION **          T_PTRREF
 TM *                T_PTRREF
+PACKET_ELT *        T_PTRREF
 AC_CRYPTO *         T_PTRREF
 
 const char *        T_PV
@@ -24,4 +25,7 @@ uint8_t             T_U_SHORT
 uint8_t *           T_U_SHORT
 unsigned int        T_PV
 unsigned int *      T_PV
-
+uint16_t            T_U_SHORT
+uint16_t *          T_U_SHORT
+uint32_t            T_U_SHORT
+uint32_t *          T_U_SHORT
