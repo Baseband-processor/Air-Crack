@@ -8,6 +8,10 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 #include "C/include/aircrack-ng/third-party/eapol.h"
+#include "C/include/aircrack-ng/ce-wpa/jcommon.h"
+
+typedef unsigned int ARCH_WORD_64;
+typedef unsigned int ARCH_WORD_32;
 
 typedef struct {
 	unsigned char version; 
