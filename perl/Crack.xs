@@ -41,6 +41,10 @@ airpcap_sniff(buf, length, ri)
 	void * buf
 	int length
 	Rx * ri
+	   CODE:
+             RETVAL = airpcap_sniff(&buf, length, ri);
+        OUTPUT:
+          RETVAL
 
 int 
 airpcap_inject(buf, length, ti)
