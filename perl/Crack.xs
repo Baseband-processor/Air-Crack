@@ -61,13 +61,29 @@ typedef struct {
 
 typedef ac_channel_info *AC_CHANNEL_INFO;
 
+typedef struct
+{
+	int votes;
+	uint8_t b;
+} PTW_tableentry;
+
+typedef PTW_tableentry  *PTW_TABLEENTRY;
+
+typedef struct{
+	uint8_t iv[PTW_IVBYTES];
+	uint8_t keystream[PTW_KSBYTES];
+	int weight;
+} PTW_session;
+
+typedef PTW_session     *PTW_SESSION;
+
 typedef struct {
 	int packets_collected;
 	uint8_t seen_iv[PTW_IVTABLELEN];
 	int sessions_collected;
-	PTW_session sessions[PTW_CONTROLSESSIONS];
-	PTW_tableentry table[PTW_KEYHSBYTES][PTW_n];
-	PTW_session * allsessions;
+	PTW_SESSION sessions[PTW_CONTROLSESSIONS];
+	PTW_TABLEENTRY table[PTW_KEYHSBYTES][PTW_n];
+	PTW_SESSION * allsessions;
 	int allsessions_size;
 	RC4TEST rc4test;
 } PTW_attackstate;
