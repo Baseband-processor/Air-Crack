@@ -13,6 +13,29 @@ typedef int (*rc4test_func)(uint8_t * key,int keylen,uint8_t * iv,uint8_t * keys
 typedef rc4test_func *RC4TEST;
 
 typedef struct {
+	char mcs_index; 
+	char sec_channel; 
+	unsigned char short_gi_20; 
+	unsigned char short_gi_40; 
+	unsigned char any_chan_width; 
+}n_channel_info;
+
+typedef n_channel_info *N_CHANNEL_INFO;
+
+typedef struct {
+	unsigned char center_sgmt[2];
+	unsigned char mu_mimo; 
+	unsigned char short_gi_80; 
+	unsigned char short_gi_160; 
+	unsigned char split_chan; 
+	unsigned char mhz_160_chan; 
+	unsigned char wave_2;                  
+	unsigned char mcs_index[MAX_AC_MCS_INDEX];
+}ac_channel_info;
+
+typedef ac_channel_info *AC_CHANNEL_INFO;
+
+typedef struct {
 	int packets_collected;
 	uint8_t seen_iv[PTW_IVTABLELEN];
 	int sessions_collected;
@@ -29,6 +52,7 @@ typedef struct wif         * WIF;
 typedef struct timespec    * TIME;
 typedef struct rx_info     * Rx;
 typedef struct tx_info     * Tx;
+typedef struct ST_info     * ST;
 
 typedef struct {
 	struct AP_info * prev; 
@@ -37,8 +61,8 @@ typedef struct {
 	int channel; 
 	enum channel_width_enum channel_width; 
 	char standard[3];
-	struct n_channel_info n_channel; 
-	struct ac_channel_info ac_channel; 
+	N_CHANNEL_INFO n_channel; 
+	AC_CHANNEL_INFO ac_channel; 
 	int max_speed; 
 	int avg_power; 
 	int best_power; 
@@ -72,7 +96,7 @@ typedef struct {
 	unsigned int crypt; 
 	int eapol; 
 	int target; 
-	struct ST_info * st_1st; 
+	ST * st_1st; 
 	c_avl_tree_t * stations; 
 	struct WPA_hdsk wpa;
 	PTW_attackstate * ptw_clean;
@@ -99,7 +123,6 @@ typedef struct {
 
 typedef struct AP_info     * AP;
 
-typedef struct ST_info     * ST;
 typedef struct tm          * TM;
 typedef struct session     * SESSION;
 typedef struct packet_elt  * PACKET_ELF;
