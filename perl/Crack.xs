@@ -255,7 +255,7 @@ typedef struct ST_info     * ST;
 
 typedef struct tm          * TM;
 typedef struct session     * SESSION;
-typedef struct packet_elt  * PACKET_ELF;
+typedef struct packet_elt  * PACKET_ELT;
 
 typedef ac_crypto_engine_t  AC_CRYPTO;
 
