@@ -1,5 +1,14 @@
 TYPEMAP
 
+WPS_INFORMATION *   T_PTROBJ
+RC4TEST *           T_PTRREF
+WPA_HANDSHAKE *     T_PTROBJ
+N_CHANNEL_INFO *    T_PTROBJ
+AC_CHANNEL_INFO *   T_PTROBJ
+PTW_TABLEENTRY *    T_PTRREF
+PTW_SESSION *       T_PTRREF
+TIME *              T_PTRREF
+
 PTW_STATE *         T_PTRREF
 WIF *               T_PTRREF
 TIME *              T_PTRREF
@@ -12,6 +21,8 @@ SESSION **          T_PTRREF
 TM *                T_PTRREF
 PACKET_ELT *        T_PTRREF
 AC_CRYPTO *         T_PTRREF
+ARCH_WORD_64        T_PV
+ARCH_WORD_32        T_PV
 
 const char *        T_PV
 const u_char *      T_PV
