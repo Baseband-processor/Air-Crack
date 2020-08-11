@@ -8,7 +8,23 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
+typedef int (*rc4test_func)(uint8_t * key,int keylen,uint8_t * iv,uint8_t * keystream)
+
+typedef rc4test_func *RC4TEST;
+
+typedef struct {
+	int packets_collected;
+	uint8_t seen_iv[PTW_IVTABLELEN];
+	int sessions_collected;
+	PTW_session sessions[PTW_CONTROLSESSIONS];
+	PTW_tableentry table[PTW_KEYHSBYTES][PTW_n];
+	PTW_session * allsessions;
+	int allsessions_size;
+	RC4TEST rc4test;
+} PTW_attackstate;
+
 typedef PTW_attackstate    * PTW_STATE;
+
 typedef struct wif         * WIF;
 typedef struct timespec    * TIME;
 typedef struct rx_info     * Rx;
