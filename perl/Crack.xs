@@ -8,16 +8,16 @@
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
 
-typedef PTW_attackstate     PTW_STATE;
-typedef struct wif          WIF;
-typedef struct timespec     TIME;
-typedef struct rx_info      Rx;
-typedef struct tx_info      Tx;
-typedef struct AP_info      AP;
-typedef struct ST_info      ST;
-typedef struct tm           TM;
-typedef struct session      SESSION;
-typedef struct packet_elt   PACKET_ELF;
+typedef PTW_attackstate    * PTW_STATE;
+typedef struct wif         * WIF;
+typedef struct timespec    * TIME;
+typedef struct rx_info     * Rx;
+typedef struct tx_info     * Tx;
+typedef struct AP_info     * AP;
+typedef struct ST_info     * ST;
+typedef struct tm          * TM;
+typedef struct session     * SESSION;
+typedef struct packet_elt  * PACKET_ELF;
 
 typedef ac_crypto_engine_t  AC_CRYPTO;
 
