@@ -30,8 +30,7 @@ typedef struct timespec    * TIME;
 typedef struct rx_info     * Rx;
 typedef struct tx_info     * Tx;
 
-struct AP_info
-{
+typedef struct {
 	struct AP_info * prev; 
 	struct AP_info * next; 
 	time_t tinit, tlast; 
@@ -53,7 +52,6 @@ struct AP_info
 	float gps_loc_min[5]; 
 	float gps_loc_max[5]; 
 	float gps_loc_best[5]; 
-
 	unsigned long nb_bcn; 
 	unsigned long nb_pkt;
 	unsigned long nb_data;  
@@ -97,9 +95,10 @@ struct AP_info
 	int marked;
 	int marked_color;
 	struct WPS_info wps;
-};
+}AP_INFO;
 
 typedef struct AP_info     * AP;
+
 typedef struct ST_info     * ST;
 typedef struct tm          * TM;
 typedef struct session     * SESSION;
