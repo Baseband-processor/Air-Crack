@@ -7,6 +7,7 @@
 #include "C/include/aircrack-ng/osdep/common.h"
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
 #include "C/include/aircrack-ng/support/mcs_index_rates.h"
+#include "C/include/aircrack-ng/third-party/eapol.h"
 
 typedef struct {
 	unsigned char version; 
@@ -17,6 +18,25 @@ typedef struct {
 	
 typedef WPS_INFO         *WPS_INFORMATION;
 typedef int rc4test_func *RC4TEST;
+
+typedef struct{
+	uint8_t stmac[6]; 
+	uint8_t snonce[32];
+	uint8_t anonce[32];
+	uint8_t pmkid[16]; 
+	uint8_t keymic[16];
+	uint8_t eapol[256]; 
+	uint32_t eapol_size; 
+	uint8_t keyver; 
+	uint8_t state; 
+	uint8_t found;
+	uint8_t eapol_source;
+	uint64_t replay;
+	int32_t tv_sec;
+	int32_t tv_usec;
+}WPA_hdsk;
+
+typedef WPA_hdsk        *WPA_HANDSHAKE;
 
 typedef struct {
 	char mcs_index; 
@@ -104,7 +124,7 @@ typedef struct {
 	int target; 
 	ST * st_1st; 
 	c_avl_tree_t * stations; 
-	struct WPA_hdsk wpa;
+	WPA_HANDSHAKE wpa;
 	PTW_attackstate * ptw_clean;
 	PTW_attackstate * ptw_vague;
 	int wpa_stored; 
@@ -135,7 +155,7 @@ typedef struct {
 	struct ST_info * next; 
 	AP * base; 
 	uint8_t stmac[6]; 
-	struct WPA_hdsk wpa; 
+	WPA_HANDSHAKE wpa; 
 	char * manuf; 
 	time_t tinit, tlast; 
 	unsigned long nb_pkt; 
