@@ -570,22 +570,22 @@ open_existing_pcap(filename)
 	const char * filename
 	
 static BOOLEAN
-read_packets(void)
+read_packets()
 
 static BOOLEAN
-initialize_linked_list(void)
+initialize_linked_list()
 
 static BOOLEAN
-add_node_if_not_complete(void)
+add_node_if_not_complete()
 
 static void
-set_node_complete(void)
+set_node_complete()
 
 static void
-remove_last_uncomplete_node(void)
+remove_last_uncomplete_node()
 
 static void
-reset_current_packet_pointer(void)
+reset_current_packet_pointer()
 
 static BOOLEAN
 reset_current_packet_pointer_to_ap_packet(void)
