@@ -279,20 +279,14 @@ airpcap_sniff(buf, length, ri)
 	void * buf
 	int length
 	Rx * ri
-	   CODE:
-             RETVAL = airpcap_sniff(&buf, length, ri);
-        OUTPUT:
-          RETVAL
+	
 
 int 
 airpcap_inject(buf, length, ti)
 	void * buf
 	int length
 	Tx * ti
-	   CODE:
-             RETVAL = airpcap_inject(&buf, length, &ti);
-        OUTPUT:
-          RETVAL
+	
 int
 airpcap_init(parameter)
 	char *parameter
@@ -300,6 +294,7 @@ airpcap_init(parameter)
 int
 airpcap_set_chan(channel)
 	int channel
+
 int
 isAirpcapDevice(interface)
 	const char * interface
@@ -354,11 +349,13 @@ int
 wi_set_channel(wi, channel)
 	WIF *wi
 	int channel
+
 int 
 wi_set_ht_channel(wi, channel, htval)
 	WIF * wi
 	int channel
 	unsigned int htval
+
 int 
 wi_get_channel(wi)
 	WIF * wi
@@ -410,6 +407,7 @@ int
 wi_set_mtu(wi, mtu)
 	WIF *wi
 	int mtu
+	
 void
 PTW_freeattackstate(state)
 	PTW_STATE *state
@@ -489,36 +487,24 @@ int
 ac_session_set_working_directory(session, directory)
 	SESSION *session
 	const char *directory
-	      CODE:
-		RETVAL = ac_session_set_working_directory(&session, &directory);
-        OUTPUT:
-          RETVAL
+
 	
 int 
 ac_session_set_bssid( session, bssid)
 	SESSION * session
 	const char *bssid
-		CODE:
-		  RETVAL = ac_session_set_bssid(&session, &bssid);
-        OUTPUT:
-          RETVAL
+	
 int
 ac_session_set_wordlist_settings(session, wordlist)
 	SESSION *session
 	const char * wordlist
-		CODE:
-		  RETVAL = ac_session_set_wordlist_settings(&session, &wordlist);
-        OUTPUT:
-          RETVAL
+
 	  
 int
 ac_session_set_amount_arguments(session, argouments)
 	SESSION *session
 	const char *argouments
-		CODE:
-		  RETVAL = ac_session_set_wordlist_settings(&session, &argouments);
-        OUTPUT:
-          RETVAL
+	
 
 SESSION * 
 ac_session_load(filename)
@@ -529,10 +515,6 @@ ac_session_save(s, pos, nb_keys_tried)
 	SESSION *s
 	uint64_t pos
 	long long int nb_keys_tried
-		CODE:
-		  RETVAL = ac_session_save(&s, pos, nb_keys_tried);
-        OUTPUT:
-          RETVAL
 	  
 SESSION *
 ac_session_from_argv(argc, argv, filename)
@@ -588,19 +570,19 @@ static void
 reset_current_packet_pointer()
 
 static BOOLEAN
-reset_current_packet_pointer_to_ap_packet(void)
+reset_current_packet_pointer_to_ap_packet()
 
 static BOOLEAN
-reset_current_packet_pointer_to_client_packet(void)
+reset_current_packet_pointer_to_client_packet()
 
 static BOOLEAN
-next_packet_pointer(void)
+next_packet_pointer()
 
 static BOOLEAN
-next_packet_pointer_from_ap(void)
+next_packet_pointer_from_ap()
 
 static BOOLEAN
-next_packet_pointer_from_client(void)
+next_packet_pointer_from_client()
 
 static int
 compare_SN_to_current_packet(packet)
@@ -666,12 +648,15 @@ sha1_unreverse(hash)
 void 
 sha224_reverse(hash)
 	uint32_t * hash
+	
 void
 sha224_unreverse(hash)
 	uint32_t * hash
+	
 void
 sha256_reverse(hash)
 	uint32_t * hash
+	
 void
 sha256_unreverse(void)
 
@@ -704,6 +689,7 @@ void
 dump_stuff(x, size)
 	void *x
 	unsigned int size
+	
 void
 dump_stuff_msg(message, x,  size)
 	const void *message
