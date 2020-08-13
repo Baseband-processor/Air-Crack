@@ -2,6 +2,11 @@
 #include "perl.h"
 #include "XSUB.h"
 
+
+#endif
+
+#include <stdbool.h>
+#include "bool.h"
 #include "C/lib/osdep/aircrack_ng_airpcap.h"
 #include "C/include/aircrack-ng/osdep/common.h"
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
@@ -11,58 +16,15 @@
 
 typedef unsigned int ARCH_WORD_64;
 typedef unsigned int ARCH_WORD_32;
-
-typedef struct {
-	unsigned char version; 
-	unsigned char state; 
-	unsigned char ap_setup_locked; 
-	unsigned int meth; 
-}WPS_INFO;
 	
-typedef WPS_INFO         *WPS_INFORMATION;
-typedef int rc4test_func *RC4TEST;
+typedef struct WPS_INFO         WPS_INFORMATION;
+typedef int rc4test_func RC4TEST;
 
-typedef struct{
-	uint8_t stmac[6]; 
-	uint8_t snonce[32];
-	uint8_t anonce[32];
-	uint8_t pmkid[16]; 
-	uint8_t keymic[16];
-	uint8_t eapol[256]; 
-	uint32_t eapol_size; 
-	uint8_t keyver; 
-	uint8_t state; 
-	uint8_t found;
-	uint8_t eapol_source;
-	uint64_t replay;
-	int32_t tv_sec;
-	int32_t tv_usec;
-}WPA_hdsk;
+typedef struct WPA_hdsk        WPA_HANDSHAKE;
 
-typedef WPA_hdsk        *WPA_HANDSHAKE;
+typedef struct n_channel_info N_CHANNEL_INFO;
 
-typedef struct {
-	char mcs_index; 
-	char sec_channel; 
-	unsigned char short_gi_20; 
-	unsigned char short_gi_40; 
-	unsigned char any_chan_width; 
-}n_channel_info;
-
-typedef n_channel_info *N_CHANNEL_INFO;
-
-typedef struct {
-	unsigned char center_sgmt[2];
-	unsigned char mu_mimo; 
-	unsigned char short_gi_80; 
-	unsigned char short_gi_160; 
-	unsigned char split_chan; 
-	unsigned char mhz_160_chan; 
-	unsigned char wave_2;                  
-	unsigned char mcs_index[MAX_AC_MCS_INDEX];
-}ac_channel_info;
-
-typedef ac_channel_info *AC_CHANNEL_INFO;
+typedef struct ac_channel_info AC_CHANNEL_INFO;
 
 typedef struct
 {
@@ -70,191 +32,30 @@ typedef struct
 	uint8_t b;
 } PTW_tableentry;
 
-typedef PTW_tableentry  *PTW_TABLEENTRY;
+typedef struct PTW_tableentry  PTW_TABLEENTRY;
 
-typedef struct{
-	uint8_t iv[PTW_IVBYTES];
-	uint8_t keystream[PTW_KSBYTES];
-	int weight;
-} PTW_session;
+typedef struct PTW_session     PTW_SESSION;
 
-typedef PTW_session     *PTW_SESSION;
-
-typedef struct {
-	int packets_collected;
-	uint8_t seen_iv[PTW_IVTABLELEN];
-	int sessions_collected;
-	PTW_SESSION sessions[PTW_CONTROLSESSIONS];
-	PTW_TABLEENTRY table[PTW_KEYHSBYTES][PTW_n];
-	PTW_SESSION * allsessions;
-	int allsessions_size;
-	RC4TEST rc4test;
-} PTW_attackstate;
-
-typedef PTW_attackstate    * PTW_STATE;
+typedef struct PTW_attackstate    PTW_STATE;
 
 typedef struct  {
 	uint32_t ti_rate;
 }tx_info;
 
-typedef struct tx_info     * Tx;
+typedef struct tx_info      Tx;
+typedef struct rx_info      Rx;
+typedef struct wif          WIF;
+typedef struct timespec     TIME;
 
-typedef struct{
-	uint64_t ri_mactime;
-	int32_t ri_power;
-	int32_t ri_noise;
-	uint32_t ri_channel;
-	uint32_t ri_freq;
-	uint32_t ri_rate;
-	uint32_t ri_antenna;
-}rx_info;
+typedef struct timeval     TIMEVALUATE;
+typedef struct AP_info      AP;
 
-typedef struct rx_info     * Rx;
-
-typedef struct {
-	int (*wi_read)(struct wif * wi,
- 	struct timespec * ts,
-	int * dlt,
-	unsigned char * h80211,
-	int len,
-	struct rx_info * ri);
-	int (*wi_write)(struct wif * wi,
-	struct timespec * ts,
-	int dlt,
-	unsigned char * h80211,
-	int len,
-	struct tx_info * ti);
-	int (*wi_set_ht_channel)(struct wif * wi, int chan, unsigned int htval);
-	int (*wi_set_channel)(struct wif * wi, int chan);
-	int (*wi_get_channel)(struct wif * wi);
-	int (*wi_set_freq)(struct wif * wi, int freq);
-	int (*wi_get_freq)(struct wif * wi);
-	void (*wi_close)(struct wif * wi);
-	int (*wi_fd)(struct wif * wi);
-	int (*wi_get_mac)(struct wif * wi, unsigned char * mac);
-	int (*wi_set_mac)(struct wif * wi, unsigned char * mac);
-	int (*wi_set_rate)(struct wif * wi, int rate);
-	int (*wi_get_rate)(struct wif * wi);
-	int (*wi_set_mtu)(struct wif * wi, int mtu);
-	int (*wi_get_mtu)(struct wif * wi);
-	int (*wi_get_monitor)(struct wif * wi);
-	void * wi_priv;
-	char wi_interface[MAX_IFACE_NAME];
-}wif;
-
-typedef struct wif         * WIF;
-
-typedef struct timespec    * TIME;
-
-typedef struct timeval     *TIMEVALUATE;
-typedef struct {
-	struct AP_info * prev; 
-	struct AP_info * next; 
-	time_t tinit, tlast; 
-	int channel; 
-	enum channel_width_enum channel_width; 
-	char standard[3];
-	N_CHANNEL_INFO n_channel; 
-	AC_CHANNEL_INFO ac_channel; 
-	int max_speed; 
-	int avg_power; 
-	int best_power; 
-	int power_index; 
-	int power_lvl[NB_PWR]; 
-	int preamble; 
-	unsigned int security; 
-	int beacon_logged; 
-	int dict_started; 
-	int ssid_length; 
-	float gps_loc_min[5]; 
-	float gps_loc_max[5]; 
-	float gps_loc_best[5]; 
-	unsigned long nb_bcn; 
-	unsigned long nb_pkt;
-	unsigned long nb_data;  
-	unsigned long nb_data_old;  
-	int nb_dataps;  
-	TIMEVALUATE tv;  
-	char * manuf;  
-	unsigned long long timestamp; 
-	uint8_t bssid[6]; 
-	uint8_t essid[ESSID_LENGTH + 1]; 
-	uint8_t lanip[4]; 
-	uint8_t * ivbuf; 
-	uint8_t ** uiv_root;
-	long ivbuf_size;
-	long nb_ivs; 
-	long nb_ivs_clean; 
-	long nb_ivs_vague; 
-	unsigned int crypt; 
-	int eapol; 
-	int target; 
-	ST * st_1st; 
-	c_avl_tree_t * stations; 
-	WPA_HANDSHAKE wpa;
-	PTW_attackstate * ptw_clean;
-	PTW_attackstate * ptw_vague;
-	int wpa_stored; 
-	int essid_stored; 
-	int rx_quality; 
-	int fcapt; 
-	int fmiss; 
-	unsigned int last_seq; 
-	TIMEVALUATE ftimef; 
-	TIMEVALUATE ftimel; 
-	TIMEVALUATE ftimer; 
-	char * key; 
-	char decloak_detect;
-	struct pkt_buf * packets; 
-	char is_decloak; 
-	int EAP_detected;
-	uint8_t * data_root; 
-	int marked;
-	int marked_color;
-	WPS_INFORMATION wps;
-}AP_INFO;
-
-typedef struct AP_info     * AP;
+typedef struct ST_info      ST;
 
 
-typedef struct {
-	struct ST_info * prev; 
-	struct ST_info * next; 
-	AP * base; 
-	uint8_t stmac[6]; 
-	WPA_HANDSHAKE wpa; 
-	char * manuf; 
-	time_t tinit, tlast; 
-	unsigned long nb_pkt; 
-	uint8_t essid[ESSID_LENGTH + 1]; 
-	int essid_length; 
-	int probe_index; 
-	char probes[NB_PRB][MAX_IE_ELEMENT_SIZE]; 
-	int ssid_length[NB_PRB]; 
-	int power; 
-	int best_power; 
-	int rate_to; 
-	int rate_from; 
-	TIMEVALUATE ftimer; 
-	int missed; 
-	unsigned int lastseq; 
-	int wpatype; 
-	int wpahash; 
-	int wep; 
-	int qos_to_ds; 
-	int qos_fr_ds; 
-	int channel; 
-	float gps_loc_min[5]; 
-	float gps_loc_max[5]; 
-	float gps_loc_best[5]; 
-}ST_info;
-
-typedef struct ST_info     * ST;
-
-
-typedef struct tm          * TM;
-typedef struct session     * SESSION;
-typedef struct packet_elt  * PACKET_ELT;
+typedef struct tm           TM;
+typedef struct session      SESSION;
+typedef struct packet_elt   PACKET_ELT;
 
 typedef ac_crypto_engine_t  AC_CRYPTO;
 
@@ -521,10 +322,7 @@ ac_session_from_argv(argc, argv, filename)
 	const int argc
 	char **argv
 	const char *filename
-		CODE:
-		  RETVAL = ac_session_from_argv(argc, &&argv, &filename);
-        OUTPUT:
-          RETVAL
+	
 
 int
 getBits(b, from,length)
