@@ -3,13 +3,12 @@
 #include "XSUB.h"
 
 #include <stdbool.h>
-#include "C/lib/osdep/aircrack_ng_airpcap.h"
-#include "C/include/aircrack-ng/osdep/common.h"
-#include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
-#include "C/include/aircrack-ng/support/mcs_index_rates.h"
-#include "C/include/aircrack-ng/third-party/eapol.h"
-#include "C/include/aircrack-ng/ce-wpa/jcommon.h"
-
+#include <aircrack-ng/aircrack_ng_airpcap.h>
+#include <aircrack-ng/osdep/common.h>
+#include <aircrack-ng/ptw/aircrack-ptw-lib.h>
+#include <aircrack-ng/support/mcs_index_rates.h>
+#include <aircrack-ng/third-party/eapol.h>
+#include <aircrack-ng/ce-wpa/jcommon.h>
 
 
 typedef bool BOOLEAN;
