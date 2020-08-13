@@ -39,8 +39,6 @@ const int           T_PV
 void *              T_PV
 void **             T_PV
 unsigned long int   T_U_LONG
-uint8_t             T_U_SHORT
-uint8_t *           T_U_SHORT
 unsigned int        T_PV
 unsigned int *      T_PV
 uint16_t            T_U_SHORT
@@ -90,7 +88,7 @@ char **			    T_PACKEDARRAY
 void *			    T_PTR
 Time_t *		    T_PV
 SV *			      T_SV
-float *                     T_FLOAT
+float *                 T_FLOAT
 
 SVREF			T_SVREF
 CV *			T_CVREF
@@ -109,7 +107,7 @@ U16			T_U_SHORT
 U8			T_UV
 Result			T_U_CHAR
 Boolean			T_BOOL
-float       T_FLOAT
+float       		T_FLOAT
 double			T_DOUBLE
 SysRet			T_SYSRET
 SysRetLong		T_SYSRET

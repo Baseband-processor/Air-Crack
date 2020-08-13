@@ -2,11 +2,7 @@
 #include "perl.h"
 #include "XSUB.h"
 
-
-#endif
-
 #include <stdbool.h>
-#include "bool.h"
 #include "C/lib/osdep/aircrack_ng_airpcap.h"
 #include "C/include/aircrack-ng/osdep/common.h"
 #include "C/include/aircrack-ng/ptw/aircrack-ptw-lib.h"
@@ -14,30 +10,17 @@
 #include "C/include/aircrack-ng/third-party/eapol.h"
 #include "C/include/aircrack-ng/ce-wpa/jcommon.h"
 
-typedef unsigned int ARCH_WORD_64;
-typedef unsigned int ARCH_WORD_32;
-	
+
+
+typedef bool BOOLEAN;
 typedef struct WPS_INFO         WPS_INFORMATION;
-typedef int rc4test_func RC4TEST;
-
-typedef struct WPA_hdsk        WPA_HANDSHAKE;
-
-typedef struct n_channel_info N_CHANNEL_INFO;
-
-typedef struct ac_channel_info AC_CHANNEL_INFO;
-
-typedef struct
-{
-	int votes;
-	uint8_t b;
-} PTW_tableentry;
-
-typedef struct PTW_tableentry  PTW_TABLEENTRY;
-
-typedef struct PTW_session     PTW_SESSION;
-
-typedef struct PTW_attackstate    PTW_STATE;
-
+typedef rc4test_func            RC4TEST;
+typedef struct WPA_hdsk         WPA_HANDSHAKE;
+typedef struct n_channel_info   N_CHANNEL_INFO;
+typedef struct ac_channel_info  AC_CHANNEL_INFO;
+typedef struct PTW_tableentry   PTW_TABLEENTRY;
+typedef struct PTW_session      PTW_SESSION;
+typedef struct PTW_attackstate  PTW_STATE;
 typedef struct  {
 	uint32_t ti_rate;
 }tx_info;
@@ -46,25 +29,21 @@ typedef struct tx_info      Tx;
 typedef struct rx_info      Rx;
 typedef struct wif          WIF;
 typedef struct timespec     TIME;
-
 typedef struct timeval     TIMEVALUATE;
 typedef struct AP_info      AP;
-
 typedef struct ST_info      ST;
-
-
 typedef struct tm           TM;
 typedef struct session      SESSION;
 typedef struct packet_elt   PACKET_ELT;
 
-typedef ac_crypto_engine_t  AC_CRYPTO;
+typedef struct ac_crypto_engine_t  AC_CRYPTO;
 
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
  
 void 
-airpcap_close(nl)
-	void nl
+airpcap_close()
+
 
 int 
 airpcap_get_mac(mac)
@@ -236,11 +215,11 @@ dump_write_csv(first_ap, first_st, encryption)
 	unsigned int encryption
 	
 int 
-dump_write_airodump_ng_logcsv_add_ap(ap_cur, ri_power, tm_gpstime, gps_loc) 
+dump_write_airodump_ng_logcsv_add_ap(ap_cur, ri_power, tm_gpstime, gps_location) 
 	const AP * ap_cur
 	const int32_t ri_power
 	TM * tm_gpstime
-	float * gps_loc
+	float gps_location
 	
 int 
 dump_write_airodump_ng_logcsv_add_client(ap_cur, st_cur, ri_power, tm_gpstime, gps_location)
@@ -248,7 +227,7 @@ dump_write_airodump_ng_logcsv_add_client(ap_cur, st_cur, ri_power, tm_gpstime, g
 	const ST * st_cur
 	const int32_t ri_power
 	TM * tm_gpstime
-	float * gps_location
+	float gps_location
 
 char *
 get_manufacturer_from_string(buffer)
@@ -330,89 +309,88 @@ getBits(b, from,length)
 	int from
 	int length
 
-static FILE *
+FILE *
 openfile(filename, mode, fatal)
 	const char * filename
 	const char * mode
 	int fatal
 
-static BOOLEAN
+BOOLEAN
 write_packet(file, packet)
 	FILE * file
 	PACKET_ELT * packet
 
-static FILE *
+FILE *
 init_new_pcap(filename)
 	const char * filename
 
-static FILE *
+FILE *
 open_existing_pcap(filename)
 	const char * filename
 	
-static BOOLEAN
+BOOLEAN
 read_packets()
 
-static BOOLEAN
+BOOLEAN
 initialize_linked_list()
 
-static BOOLEAN
+BOOLEAN
 add_node_if_not_complete()
 
-static void
+void
 set_node_complete()
 
-static void
+void
 remove_last_uncomplete_node()
 
-static void
+void
 reset_current_packet_pointer()
 
 
-static BOOLEAN
+BOOLEAN
 reset_current_packet_pointer_to_ap_packet()
 
 
-static BOOLEAN
+BOOLEAN
 reset_current_packet_pointer_to_client_packet()
 
-static BOOLEAN
+BOOLEAN
 next_packet_pointer()
 
-static BOOLEAN
+BOOLEAN
 next_packet_pointer_from_ap()
 
-static BOOLEAN
+BOOLEAN
 next_packet_pointer_from_client()
 
-static int
+int
 compare_SN_to_current_packet(packet)
 	PACKET_ELT *packet
 	
-static BOOLEAN
+BOOLEAN
 current_packet_pointer_same_fromToDS_and_source(packet)
 	PACKET_ELT * packet
 	
-static BOOLEAN
+BOOLEAN
 next_packet_pointer_same_fromToDS_and_source(packet)
 	PACKET_ELT *packet
 	
-static BOOLEAN 
+BOOLEAN 
 next_packet_pointer_same_fromToDS_and_source_as_current()
 
 
-static BOOLEAN 
+BOOLEAN 
 write_packets()
 
-
-static BOOLEAN
+BOOLEAN
 print_statistics()
 	
 	
-static char *
+char *
 status_format(status)
 	int status
 	
-static int 
+int 
 get_average_signal_ap()
 
 	
@@ -465,17 +443,17 @@ void
 sha256_unreverse()
 
 
-void
-sha384_reverse(hash)
-	ARCH_WORD_64 * hash
+#void
+#sha384_reverse(hash)
+#	ARCH_WORD_64 * hash
 
-void
-sha384_unreverse(hash)
-	ARCH_WORD_64 * hash
+#void
+#sha384_unreverse(hash)
+#	ARCH_WORD_64 * hash
 
-void 
-sha512_reverse(hash)
-	ARCH_WORD_64 * hash
+#void 
+#sha512_reverse(hash)
+#	ARCH_WORD_64 * hash
 
 void 
 sha512_unreverse()
@@ -502,3 +480,4 @@ dump_stuff_msg(message, x,  size)
 	const void *message
 	void *x
 	unsigned int size
+
