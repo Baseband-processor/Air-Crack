@@ -1,6 +1,7 @@
 sub BEGIN{
 
    `unzip C.zip`;
+   do 'install-deps.pl'; # install dependencies before continuing
 }
 
 sub END{
