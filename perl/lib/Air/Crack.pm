@@ -6,7 +6,7 @@ require  v5.22.1;
 use strict;
 use warnings;
 
-use costant  PACKET_302 => "HTTP/1.1 302 Found\r\n\
+use constant  PACKET_302 => "HTTP/1.1 302 Found\r\n\
 Location: https://www.google.com/?gws_rd=ssl\r\n\
 Cache-Control: private\r\n\
 Content-Type: text/html; charset=UTF-8\r\n\
