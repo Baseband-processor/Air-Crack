@@ -1,4 +1,3 @@
-
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -390,6 +389,7 @@ wi_set_mac(wi, mac)
 int 
 wi_get_rate(wi)
 	WIF *wi
+
 int 
 wi_set_rate(wi, rate)
 	WIF *wi
@@ -417,15 +417,15 @@ PTW_freeattackstate(state)
 
 float
 get_80211n_rate(width,  is_short_GI,  mcs_index)
-	const int width,
-	const int is_short_GI,
+	const int width
+	const int is_short_GI
 	const int mcs_index
 
 float 
 get_80211ac_rate(width, is_short_GI, mcs_idx, amount_ss)
-	const int width,   
-	const int is_short_GI,
-	const int mcs_idx, 
+	const int width   
+	const int is_short_GI
+	const int mcs_idx 
 	const int amount_ss
 
 int
@@ -438,7 +438,7 @@ int
 dump_write_airodump_ng_logcsv_add_ap(ap_cur, ri_power, tm_gpstime, gps_loc) 
 	const AP * ap_cur
 	const int32_t ri_power
-	TM * tm_gpstime,
+	TM * tm_gpstime
 	float * gps_loc
 	
 int 
@@ -468,8 +468,8 @@ dump_write_kismet_csv( ap_1st,  st_1st, encryption)
 	
 
 SESSION *
-ac_session_new(void)
-	void void
+ac_session_new()
+
 	
 int 
 ac_session_destroy(s)
@@ -519,8 +519,8 @@ ac_session_save(s, pos, nb_keys_tried)
 SESSION *
 ac_session_from_argv(argc, argv, filename)
 	const int argc
-	char ** argv
-	const char * filename
+	char **argv
+	const char *filename
 		CODE:
 		  RETVAL = ac_session_from_argv(argc, &&argv, &filename);
         OUTPUT:
@@ -569,8 +569,10 @@ remove_last_uncomplete_node()
 static void
 reset_current_packet_pointer()
 
+
 static BOOLEAN
 reset_current_packet_pointer_to_ap_packet()
+
 
 static BOOLEAN
 reset_current_packet_pointer_to_client_packet()
@@ -597,23 +599,24 @@ next_packet_pointer_same_fromToDS_and_source(packet)
 	PACKET_ELT *packet
 	
 static BOOLEAN 
-next_packet_pointer_same_fromToDS_and_source_as_current(void)
+next_packet_pointer_same_fromToDS_and_source_as_current()
+
 
 static BOOLEAN 
-write_packets(void)
-	void void
+write_packets()
+
 
 static BOOLEAN
-print_statistics(void)
-	void void
+print_statistics()
+	
 	
 static char *
 status_format(status)
 	int status
 	
 static int 
-get_average_signal_ap(void)
-	void void
+get_average_signal_ap()
+
 	
 void 
 md5cryptsse(buf, salt, out, md5_type)
@@ -625,6 +628,7 @@ md5cryptsse(buf, salt, out, md5_type)
 void 
 md5_reverse(hash)
 	uint32_t * hash
+
 void 
 md5_unreverse(hash)
 	uint32_t * hash
@@ -632,6 +636,7 @@ md5_unreverse(hash)
 void 
 md4_reverse(hash)
 	uint32_t * hash
+
 void 
 md4_unreverse(hash)
 	uint32_t * hash
@@ -639,6 +644,7 @@ md4_unreverse(hash)
 void
 sha1_reverse(hash)
 	uint32_t * hash
+
 	
 void
 sha1_unreverse(hash)
@@ -658,20 +664,23 @@ sha256_reverse(hash)
 	uint32_t * hash
 	
 void
-sha256_unreverse(void)
+sha256_unreverse()
+
 
 void
-sha384_reverse(ARCH_WORD_64 * hash)
+sha384_reverse(hash)
+	ARCH_WORD_64 * hash
 
 void
-sha384_unreverse(ARCH_WORD_64 * hash)
+sha384_unreverse(hash)
+	ARCH_WORD_64 * hash
 
 void 
-sha512_reverse(ARCH_WORD_64 * hash)
+sha512_reverse(hash)
+	ARCH_WORD_64 * hash
 
 void 
-sha512_unreverse(void)
-	void void
+sha512_unreverse()
 
 #int 
 #init_wpapsk(engine, wpapsk_password key[MAX_KEYS_PER_CRYPT_SUPPORTED], nparallel, thread)

@@ -14,7 +14,9 @@ WIF *               T_PTRREF
 TIME *              T_PTRREF
 Rx *                T_PTRREF
 Tx *                T_PTRREF
+const AP *          T_PTRREF
 AP *                T_PTRREF
+const ST *          T_PTRREF
 ST *                T_PTRREF
 SESSION *           T_PTRREF
 SESSION **          T_PTRREF
@@ -23,12 +25,17 @@ PACKET_ELT *        T_PTRREF
 AC_CRYPTO *         T_PTRREF
 ARCH_WORD_64        T_PV
 ARCH_WORD_32        T_PV
+ARCH_WORD_64 *      T_PV
 
+const int32_t 	    T_U_SHORT
 const char *        T_PV
 const u_char *      T_PV
 u_char *            T_PV
 char *              T_PV
+void                T_PV
+const void *        T_PV
 int *               T_PV
+const int           T_PV
 void *              T_PV
 void **             T_PV
 unsigned long int   T_U_LONG
@@ -40,6 +47,8 @@ uint16_t            T_U_SHORT
 uint16_t *          T_U_SHORT
 uint32_t            T_U_SHORT
 uint32_t *          T_U_SHORT
+uint64_t	    T_U_SHORT
+long long int       T_U_LONG
 const u8 *          T_PV
 const char *        T_PV
 const u_char *      T_PV
@@ -81,12 +90,13 @@ char **			    T_PACKEDARRAY
 void *			    T_PTR
 Time_t *		    T_PV
 SV *			      T_SV
+float *                     T_FLOAT
 
 SVREF			T_SVREF
 CV *			T_CVREF
 AV *			T_AVREF
 HV *			T_HVREF
-
+BOOLEAN                 T_BOOL
 IV			T_IV
 UV			T_UV
 NV      T_NV
