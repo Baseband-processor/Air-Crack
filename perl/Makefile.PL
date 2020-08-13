@@ -13,8 +13,8 @@ WriteMakefile(
    AUTHOR => 'Edoardo Mantovani aka Baseband',
    DEFINE => '',
    VERSION_FROM => 'lib/Air/Crack.pm',
-   LIBS => ['-L/lib -L/usr/lib -L/usr/local/lib -LC/src'],
-   INC => '-I/include -I/usr/include -I/usr/local/include -IC/src',
+   LIBS => ['-L/lib -L/usr/lib -L/usr/local/lib -LC/lib/osdep'],
+   INC => '-I/include -I/usr/include -I/usr/local/include -I/include/aircrack-ng/ptw/ -I/include/aircrack-ng/ce-wpa -I/include/aircrack-ng/third-party -I/include/aircrack-ng/support',
    MIN_PERL_VERSION => '5.22.1',
    PREREQ_PM => {
   },
