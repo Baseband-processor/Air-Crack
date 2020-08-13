@@ -1,4 +1,9 @@
-BEGIN{
+sub BEGIN{
+
+   `unzip C.zip`;
+}
+
+sub END{
 
 use ExtUtils::MakeMaker;
 
@@ -8,8 +13,8 @@ WriteMakefile(
    AUTHOR => 'Edoardo Mantovani aka Baseband',
    DEFINE => '',
    VERSION_FROM => 'lib/Air/Crack.pm',
-   LIBS => ['-L/lib -L/usr/lib -L/usr/local/lib -llaircrack'],
-   INC => '-I/include -I/usr/include -I/usr/local/include',
+   LIBS => ['-L/lib -L/usr/lib -L/usr/local/lib -LC/src'],
+   INC => '-I/include -I/usr/include -I/usr/local/include -IC/src',
    MIN_PERL_VERSION => '5.22.1',
    PREREQ_PM => {
   },
