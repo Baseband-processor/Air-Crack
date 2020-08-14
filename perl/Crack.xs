@@ -20,6 +20,7 @@ typedef struct ac_channel_info  AC_CHANNEL_INFO;
 typedef struct PTW_tableentry   PTW_TABLEENTRY;
 typedef struct PTW_session      PTW_SESSION;
 typedef struct PTW_attackstate  PTW_STATE;
+
 typedef struct  {
 	uint32_t ti_rate;
 }tx_info;
