@@ -44,21 +44,21 @@ This module requires these other modules and libraries:
 
 and the suggested libraries are:
 
-    openssl
-    Gcrypt:                      
-    OpenSSL:                     
-    Ethtool:                     
-    Libnl:                       
-    Airpcap:                     
-    Cmocka:                      
-    DUMA:                          
-    Hwloc:                           
-    Jemalloc:                    
-    Pcap:                        
-    Pcre:                        
-    Sqlite:                      
-    Tcmalloc:                    
-    Zlib:                        
+ *   openssl
+ *   Gcrypt                      
+ *   OpenSSL                     
+ *   Ethtool                     
+ *   Libnl                      
+ *   Airpcap                     
+ *   Cmocka                      
+ *   DUMA                          
+ *   Hwloc                         
+ *   Jemalloc                    
+ *   Pcap                        
+ *   Pcre                       
+ *   Sqlite                      
+ *   Tcmalloc                    
+ *   Zlib                        
 
 
 
