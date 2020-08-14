@@ -12,21 +12,22 @@ archive can use it get an idea of the modules uses. It is usually a
 good idea to provide version information here so that people can
 decide whether fixes for the module are worth downloading.
 
-INSTALLATION
+**INSTALLATION**
 
 To install this module type the following:
 
+```shell
    sudo make
+```
 
 Just execute the makefile script outside the C and perl directory, for now there are no tests, they will be added in future.
 
-DEPENDENCIES
+**DEPENDENCIES**
 
 This module requires these other modules and libraries:
 
   - Aircrack
-
-
+  
 `From the Aircrack README file I report the requirements:`
 
  * Autoconf
@@ -62,9 +63,9 @@ and the suggested libraries are:
 
 
 
-COPYRIGHT AND LICENCE
+**COPYRIGHT AND LICENCE**
 
-Copyright (C) 2020 by Edoardo Mantovani, aka BASEBAND
+Copyright (C) 2020 by *Edoardo Mantovani*, aka BASEBAND
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,
