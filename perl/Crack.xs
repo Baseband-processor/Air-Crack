@@ -571,10 +571,32 @@ net_get(s, argoument, length)
 	void *argoument
 	int length
 
+WIF * 
+wi_open_osdep(interface)
+	char * interface
+	
+WIF *
+file_open(interface)
+	char *interface
 
 WIF * 
 wi_open(interface)
 	char * interface
+CODE:
+	WIF * wi;
+	if (interface == NULL || interface[0] == 0)
+	{
+		return NULL;
+	}
+	wi = file_open(interface);
+	if (wi == (WIF *) -1) return NULL;
+	if (!wi) wi = net_open(interface);
+	if (!wi) wi = wi_open_osdep(interface);
+	if (!wi) return NULL;
+
+	strncpy(wi->wi_interface, interface, sizeof(wi->wi_interface) - 1);
+	wi->wi_interface[sizeof(wi->wi_interface) - 1] = 0;
+	return wi;
 
 
 int
