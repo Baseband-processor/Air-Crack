@@ -1,12 +1,5 @@
-sub BEGIN{
-
-   `unzip C.zip`;
-   do 'install-deps.pl'; # install dependencies before continuing
-}
-
-sub END{
-
 use ExtUtils::MakeMaker;
+use strict;
 
 WriteMakefile(
    NAME => 'Air::Crack',
@@ -22,4 +15,4 @@ WriteMakefile(
 );
 
 
-}
+
