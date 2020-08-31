@@ -147,6 +147,21 @@ typedef struct timeval     TIMEVALUATE;
 typedef struct AP_info      AP;
 typedef struct ST_info      ST;
 typedef struct tm           TM;
+
+typedef pthread_mutex_t PTHREAD;
+typedef struct {
+	char * filename;
+	char * working_dir; 
+	unsigned char bssid[6]; 
+	unsigned char wordlist_id; 
+	int64_t pos; 
+	long long int nb_keys_tried;
+	int argc; 
+	char ** argv; 
+	PTHREAD mutex; 
+	unsigned char is_loaded;
+}session;
+
 typedef struct session      SESSION;
 typedef struct packet_elt   PACKET_ELT;
 
