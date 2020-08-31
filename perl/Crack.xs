@@ -65,8 +65,26 @@
 
 #define N_ATTACKS 17
 
-typedef struct packet_elt_header
-{
+typedef struct  {
+	unsigned char q_buf[2048];
+	int q_len;
+	struct netqueue * q_next;
+	struct netqueue * q_prev;
+}netqueue;
+
+typedef struct netqueue NETQUEUE;
+
+
+typedef struct {
+	int pn_s;
+	NETQUEUE pn_queue;
+	NETQUEUE pn_queue_free;
+	int pn_queue_len;
+}priv_net;
+	
+typedef struct priv_net PRIVATE_NET;
+
+typedef struct packet_elt_header{
 	struct packet_elt * first;
 	struct packet_elt * current;
 	struct packet_elt * last;
