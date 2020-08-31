@@ -435,6 +435,13 @@ OUTPUT:
 RETVAL
 
 int
+net_read_exact(s, argoument,  length)
+	int s
+	void *argoument
+	int length
+
+
+int
 net_get(s, arg, len)
 	int s
 	void * arg
@@ -456,7 +463,31 @@ CODE:
 		return -1;
 	}
 	return nh.nh_type;
+
+NETQUEUE * 
+queue_get_slot(pn)
+	PRIVATE_NET * pn
+CODE:
+
+	NETQUEUE * q = pn->pn_queue_free.q_next;
+	if (pn->pn_queue_len++ > QUEUE_MAX) return NULL;
+	return malloc(sizeof(*q));
 	
+void 
+net_enque(pn, buf, len)
+	PRIVATE_NET * pn
+	void * buf
+	int len
+CODE:
+	NETQUEUE * q;
+	q = queue_get_slot(pn);
+	if (!q) return;
+	q->q_len = len;
+	assert((int) sizeof(q->q_buf) >= q->q_len);
+	memcpy(q->q_buf, buf, q->q_len);
+	queue_add(&pn->pn_queue, q);
+
+
 int 
 net_get_nopacket(pn, arg, len)
 	PRIVATE_NET *pn
@@ -518,11 +549,6 @@ OUTPUT:
 RETVAL
 
 
-int
-net_read_exact(s, argoument,  length)
-	int s
-	void *argoument
-	int length
 
 int
 net_get(s, argoument, length)
