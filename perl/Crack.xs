@@ -11,6 +11,9 @@
 
 #define QUEUE_MAX 666
 
+#define NET_RC  1
+#define NET_PACKET 1
+
 
 #define BEACON_FRAME 0x80
 #define PROBE_RESPONSE 0x50
@@ -189,14 +192,13 @@ CODE:
 	char ip[16];
 	SOCKADDR_IN s_in;
 
-	port = get_ip_port(iface, ip, sizeof(ip) - 1);
+	port = get_ip_port(interface, ip, sizeof(ip) - 1);
 	if (port == -1) return -1;
 
 	memset(&s_in, 0, sizeof(SOCKADDR_IN *));
 	s_in.sin_family = PF_INET;
 	s_in.sin_port = htons(port);
 	if (!inet_aton(ip, &s_in.sin_addr)) return -1;
-
 	if ((s = socket(s_in.sin_family, SOCK_STREAM, IPPROTO_TCP)) == -1)
 		return -1;
 	printf("Connecting to %s port %d...\n", ip, port);
@@ -219,6 +221,98 @@ CODE:
 RETVAL = s;
 OUTPUT:
 	RETVAL
+
+void 
+queue_add(head, q)
+	struct netqueue * head
+	struct netqueue * q
+CODE:
+	struct netqueue * pos = head->q_prev;
+	q->q_prev = pos;
+	q->q_next = pos->q_next;
+	q->q_next->q_prev = q;
+	pos->q_next = q;
+		
+void 
+queue_del(q)
+	struct netqueue * q
+CODE:
+	q->q_prev->q_next = q->q_next;
+	q->q_next->q_prev = q->q_prev;
+
+int 
+queue_get(pn, buf, len)
+	struct priv_net * pn
+	void * buf
+	int len
+CODE:
+	struct netqueue * head = &pn->pn_queue;
+	struct netqueue * q = head->q_next;
+	if (q == head) return 0;
+	assert(q->q_len <= len);
+	memcpy(buf, q->q_buf, q->q_len);
+	queue_del(q);
+	queue_add(&pn->pn_queue_free, q);
+	return q->q_len;
+
+		
+int 
+net_read(wi, ts, dlt, h80211, len, ri)
+	WIF * wi
+	TIME * ts
+	int * dlt
+	unsigned char * h80211
+	int len
+	Rx * ri
+CODE:
+	struct priv_net * pn = wi_priv(wi);
+	uint32_t buf[512] = {0};
+	unsigned char * bufc = (unsigned char *) buf;
+	int cmd;
+	int sz = sizeof(*ri);
+	int l;
+	int ret;
+	l = queue_get(pn, buf, sizeof(buf));
+	if (!l)
+	{
+		l = sizeof(buf);
+		cmd = net_get(pn->pn_s, buf, &l);
+
+		if (cmd == -1) return -1;
+		if (cmd == NET_RC)
+		{
+			ret = ntohl((buf[0]));
+			return ret;
+		}
+		assert(cmd == NET_PACKET);
+	}
+	if (ri)
+	{
+		uint64_t hi = buf[0];
+		ri->ri_mactime = __be64_to_cpu(((hi) << 32U) | buf[1]);
+		ri->ri_power = __be32_to_cpu(buf[2]);
+		ri->ri_noise = __be32_to_cpu(buf[3]);
+		ri->ri_channel = __be32_to_cpu(buf[4]);
+		ri->ri_freq = __be32_to_cpu(buf[5]);
+		ri->ri_rate = __be32_to_cpu(buf[6]);
+		ri->ri_antenna = __be32_to_cpu(buf[7]);
+	}
+	l -= sz;
+	assert(l > 0);
+	if (l > len) l = len;
+	memcpy(h80211, &bufc[sz], l);
+
+	if (dlt)
+	{
+		*dlt = LINKTYPE_IEEE802_11;
+	}
+
+	if (ts)
+	{
+		clock_gettime(CLOCK_REALTIME, ts);
+	}
+
+	return l;
 		
 WIF * 
 net_open(interface)
