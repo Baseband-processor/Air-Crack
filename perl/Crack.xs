@@ -4,6 +4,7 @@
 
 #include "Ctxs.h"
 #include <netinet/in.h>
+#include <linux/socket.h>
 
 #define ALLEGE(c)                                                              \
 	do                                                                         \
@@ -19,7 +20,17 @@
 #define FAILURE 1
 #define RESTART 2
 
+#define AMOUNT_ARGUMENTS_IGNORE 2
+#define EXIT_SUCCESS 0
+
 #define QUEUE_MAX 666
+
+
+#define SESSION_ARGUMENTS_LINE 4
+#define AC_SESSION_CWD_LINE 0
+#define AC_SESSION_BSSID_LINE 1
+#define AC_SESSION_WL_SETTINGS_LINE 2
+#define AC_SESSION_ARGC_LINE 3
 
 #define NET_SET_CHAN 1
 #define NET_GET_CHAN 1
@@ -52,6 +63,9 @@
 #define ASCII_VOTE_STRENGTH_T 150
 #define ASCII_DISREGARD_STRENGTH 1
 
+#define MAX_IFACE_NAME 64
+
+
 #define TEST_MIN_IVS 4
 #define TEST_MAX_IVS 32
 
@@ -83,32 +97,29 @@
 
 #define N_ATTACKS 17
 
-typedef struct {
+typedef struct net_hdr{
 	uint8_t nh_type;
 	uint32_t nh_len;
 	uint8_t nh_data[0];
-}net_hdr; 
+}NET_HDR; 
 
-typedef struct net_hdr NET_HDR;
 
-typedef struct  {
+typedef struct  netqueue{
 	unsigned char q_buf[2048];
 	int q_len;
 	struct netqueue * q_next;
 	struct netqueue * q_prev;
-}netqueue;
-
-typedef struct netqueue NETQUEUE;
+}NETQUEUE;
 
 
-typedef struct {
+
+typedef struct priv_net{
 	int pn_s;
 	NETQUEUE *pn_queue;
 	NETQUEUE *pn_queue_free;
 	int pn_queue_len;
-}priv_net;
+}PRIVATE_NET;
 	
-typedef struct priv_net PRIVATE_NET;
 
 typedef struct packet_elt_header{
 	struct packet_elt * first;
@@ -116,9 +127,9 @@ typedef struct packet_elt_header{
 	struct packet_elt * last;
 	int nb_packets;
 	int average_signal; 
-} * _packet_elt_head;
+}_packet_elt_head;
 
-typedef struct  {
+typedef struct {
   unsigned long s_addr;  
 }in_addr;
 
@@ -150,8 +161,50 @@ typedef struct  tx_info{
 	uint32_t ti_rate;
 }Tx;
 
-typedef struct rx_info      Rx;
-typedef struct wif          WIF;
+typedef struct rx_info{
+	uint64_t ri_mactime;
+	int32_t ri_power;
+	int32_t ri_noise;
+	uint32_t ri_channel;
+	uint32_t ri_freq;
+	uint32_t ri_rate;
+	uint32_t ri_antenna;
+}Rx;
+
+
+typedef struct wif {
+	int (*wi_read)(struct wif * wi,
+				   struct timespec * ts,
+				   int * dlt,
+				   unsigned char * h80211,
+				   int len,
+				   struct rx_info * ri);
+	int (*wi_write)(struct wif * wi,
+					struct timespec * ts,
+					int dlt,
+					unsigned char * h80211,
+					int len,
+					struct tx_info * ti);
+	int (*wi_set_ht_channel)(struct wif * wi, int chan, unsigned int htval);
+	int (*wi_set_channel)(struct wif * wi, int chan);
+	int (*wi_get_channel)(struct wif * wi);
+	int (*wi_set_freq)(struct wif * wi, int freq);
+	int (*wi_get_freq)(struct wif * wi);
+	void (*wi_close)(struct wif * wi);
+	int (*wi_fd)(struct wif * wi);
+	int (*wi_get_mac)(struct wif * wi, unsigned char * mac);
+	int (*wi_set_mac)(struct wif * wi, unsigned char * mac);
+	int (*wi_set_rate)(struct wif * wi, int rate);
+	int (*wi_get_rate)(struct wif * wi);
+	int (*wi_set_mtu)(struct wif * wi, int mtu);
+	int (*wi_get_mtu)(struct wif * wi);
+	int (*wi_get_monitor)(struct wif * wi);
+
+	void * wi_priv;
+	char wi_interface[MAX_IFACE_NAME];
+}WIF;
+
+
 typedef struct timespec     TIME;
 typedef struct timeval     TIMEVALUATE;
 typedef struct AP_info      AP;
@@ -159,7 +212,8 @@ typedef struct ST_info      ST;
 typedef struct tm           TM;
 
 typedef pthread_mutex_t PTHREAD;
-typedef struct {
+
+typedef struct session{
 	char * filename;
 	char * working_dir; 
 	unsigned char bssid[6]; 
@@ -170,7 +224,7 @@ typedef struct {
 	char ** argv; 
 	PTHREAD mutex; 
 	unsigned char is_loaded;
-}session;
+}SESSION;
 
 typedef struct session      SESSION;
 typedef struct packet_elt   PACKET_ELT;
@@ -443,37 +497,30 @@ CODE:
 WIF * 
 net_open(interface)
 	char * interface
-CODE:
-	WIF *wi;
-	PRIVATE_NET * pn;
-	int s;
-	wi = wi_alloc(sizeof(*pn));
-	if (!wi) return NULL;
-	wi->wi_read = net_read;
-	wi->wi_write = net_write;
-	wi->wi_set_channel = net_set_channel;
-	wi->wi_get_channel = net_get_channel;
-	wi->wi_set_rate = net_set_rate;
-	wi->wi_get_rate = net_get_rate;
-	wi->wi_close = net_close;
-	wi->wi_fd = net_fd;
-	wi->wi_get_mac = net_get_mac;
-	wi->wi_get_monitor = net_get_monitor;
-
-	s = do_net_open(interface);
-	if (s == -1)
-	{
-		do_net_free(wi);
-		return NULL;
-	}
-
-	pn = wi_priv(wi);
-	pn->pn_s = s;
-	pn->pn_queue.q_next = pn->pn_queue.q_prev = &pn->pn_queue;
-	pn->pn_queue_free.q_next = pn->pn_queue_free.q_prev = &pn->pn_queue_free;
-	RETVAL = wi;
-OUTPUT:
-RETVAL
+#CODE:
+#	WIF *wi;
+#	PRIVATE_NET * pn;
+#	int s;
+#	wi = wi_alloc(sizeof(*pn));
+#	wi->wi_read = net_read;
+#	wi->wi_write = net_write;
+#	wi->wi_set_channel = net_set_channel;
+#	wi->wi_get_channel = net_get_channel;
+#	wi->wi_set_rate = net_set_rate;
+#	wi->wi_get_rate = net_get_rate;
+#	wi->wi_close = net_close;
+#	wi->wi_fd = net_fd;
+#	wi->wi_get_mac = net_get_mac;
+#	wi->wi_get_monitor = net_get_monitor;
+#
+#	s = do_net_open(interface);
+#	pn = wi_priv(wi);
+#	pn->pn_s = s;
+#	pn->pn_queue->q_next = pn->pn_queue->q_prev = &pn->pn_queue;
+#	pn->pn_queue_free->q_next = pn->pn_queue_free->q_prev = &pn->pn_queue_free;
+#	RETVAL = wi;
+#OUTPUT:
+#RETVAL
 
 int
 net_read_exact(s, argoument,  length)
@@ -481,35 +528,13 @@ net_read_exact(s, argoument,  length)
 	void *argoument
 	int length
 
-int
-net_get(s, arg, len)
-	int s
-	void * arg
-	int * len
-CODE:
-	NET_HDR *nh;
-	int plen;
-
-	if (net_read_exact(s, &nh, sizeof(nh)) == -1)
-	{
-		return -1;
-	}
-	plen = ntohl(nh->nh_len);
-	assert(plen <= *len && plen >= 0);
-
-	*len = plen;
-	if ((*len) && (net_read_exact(s, arg, *len) == -1))
-	{
-		return -1;
-	}
-	return nh->nh_type;
 
 NETQUEUE * 
 queue_get_slot(pn)
 	PRIVATE_NET * pn
 CODE:
 
-	NETQUEUE * q = pn->pn_queue_free.q_next;
+	NETQUEUE * q = pn->pn_queue_free->q_next;
 	if (pn->pn_queue_len++ > QUEUE_MAX) return NULL;
 	return malloc(sizeof(*q));
 	
@@ -632,6 +657,9 @@ wi_write(wi, ts, dlt, h80211, length, ti)
 	unsigned char * h80211
 	int length
 	Tx * ti
+CODE:
+	assert(wi->wi_write);
+	return wi->wi_write(wi, ts, dlt, h80211, length, ti);
 
 int 
 wi_set_channel(wi, channel)
@@ -687,6 +715,9 @@ wi_set_rate(wi, rate)
 int
 wi_get_monitor(wi)
 	WIF *wi
+CODE:	
+	assert(wi->wi_get_monitor);
+	return wi->wi_get_monitor(wi)
 	
 int
 wi_get_mtu(wi)
@@ -758,65 +789,393 @@ dump_write_kismet_csv( ap_1st,  st_1st, encryption)
 
 SESSION *
 ac_session_new()
+CODE:
+	return (SESSION *) calloc(1, sizeof(SESSION));
+
 
 	
 int 
 ac_session_destroy(s)
 	SESSION *s
+CODE:
+	if (s == NULL || s->filename == NULL)
+	{
+		return (0);
+	}
+
+	ALLEGE(pthread_mutex_lock(&(s->mutex)) == 0);
+	FILE * f = fopen(s->filename, "r");
+	if (!f)
+	{
+		ALLEGE(pthread_mutex_unlock(&(s->mutex)) == 0);
+		return (0);
+	}
+	fclose(f);
+	int ret = remove(s->filename);
+	ALLEGE(pthread_mutex_unlock(&(s->mutex)) == 0);
+	return (ret == 0);
+
 	
 void 
 ac_session_free(s)
 	SESSION **s
-	
+CODE:
+	if (s == NULL || *s == NULL)
+	{
+		return;
+	}
+
+	if ((*s)->filename)
+	{
+		struct stat scs;
+		memset(&scs, 0, sizeof(struct stat));
+		ALLEGE(pthread_mutex_lock(&((*s)->mutex)) == 0);
+		if (stat((*s)->filename, &scs) == 0 && scs.st_size == 0)
+		{
+			ALLEGE(pthread_mutex_unlock(&((*s)->mutex)) == 0);
+			ac_session_destroy(*s);
+		}
+
+		free((*s)->filename);
+	}
+	if ((*s)->argv)
+	{
+		for (int i = 0; i < (*s)->argc; ++i)
+		{
+			free((*s)->argv[i]);
+		}
+		free((*s)->argv);
+	}
+	if ((*s)->working_dir) free((*s)->working_dir);
+
+	free(*s);
+	*s = NULL;
+
 int 
 ac_session_init(s)
 	SESSION *s
+CODE:
+	if (s == NULL)
+	{
+		return (EXIT_FAILURE);
+	}
+
+	memset(s, 0, sizeof(struct session));
+	ALLEGE(pthread_mutex_init(&(s->mutex), NULL) == 0);
+	return (EXIT_SUCCESS);
 
 int
 ac_session_set_working_directory(session, directory)
 	SESSION *session
 	const char *directory
+CODE:
+	if (session == NULL || directory == NULL || directory[0] == 0 || chdir(directory) == -1)
+	{
+		return (EXIT_FAILURE);
+	}
+
+	session->working_dir = strdup(directory);
+
+	return ((session->working_dir) ? EXIT_SUCCESS : EXIT_FAILURE);
 
 	
 int 
-ac_session_set_bssid( session, bssid)
+ac_session_set_bssid( session, sbssid)
 	SESSION * session
-	const char *bssid
-	
+	const char *sbssid
+CODE:
+	if (session == NULL || sbssid == NULL || strlen(sbssid) != 17)
+	{
+		return (EXIT_FAILURE);
+	}
+	unsigned int bssid[6];
+	int count = sscanf(sbssid,
+					   "%02X:%02X:%02X:%02X:%02X:%02X",
+					   &bssid[0],
+					   &bssid[1],
+					   &bssid[2],
+					   &bssid[3],
+					   &bssid[4],
+					   &bssid[5]);
+	if (count < 6)
+	{
+		return (EXIT_FAILURE);
+	}
+
+	for (int i = 0; i < 6; ++i)
+	{
+		session->bssid[i] = (uint8_t) bssid[i];
+	}
+	return (EXIT_SUCCESS);
+
 int
 ac_session_set_wordlist_settings(session, wordlist)
 	SESSION *session
 	const char * wordlist
+CODE:
+	if (session == NULL || wordlist == NULL)
+	{
+		return (EXIT_FAILURE);
+	}
 
-	  
-int
-ac_session_set_amount_arguments(session, argouments)
-	SESSION *session
-	const char *argouments
-	
+	int nb_input_scanned = sscanf(wordlist,
+								  "%hhu %" PRId64 " %lld",
+								  &(session->wordlist_id),
+								  &(session->pos),
+								  &(session->nb_keys_tried));
+
+	if (nb_input_scanned != 3 || session->pos < 0 || session->nb_keys_tried < 0)
+	{
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
+
+char *
+ac_session_getline(f)
+	FILE *f
+CODE:
+	if (f == NULL)
+	{
+		return (NULL);
+	}
+	char * ret = NULL;
+	size_t n = 0;
+	ssize_t line_len = getline(&ret, &n, f);
+	if (line_len == -1)
+	{
+		return (NULL);
+	}
+	return (ret);
+
 
 SESSION * 
 ac_session_load(filename)
 	const char * filename
+CODE:
+	int temp;
+	if (filename == NULL || filename[0] == 0)
+	{
+		return (NULL);
+	}
+	FILE * f = fopen(filename, "r");
+	if (f == NULL)
+	{
+		return (NULL);
+	}
+
+	if (fseeko(f, 0, SEEK_END))
+	{
+		fclose(f);
+		return (NULL);
+	}
+	uint64_t fsize = ftello(f);
+	if (fsize == 0)
+	{
+		fclose(f);
+		return (NULL);
+	}
+	rewind(f);
+
+	SESSION * ret = ac_session_new();
+	if (ret == NULL)
+	{
+		fclose(f);
+		return (NULL);
+	}
+
+	ac_session_init(ret);
+	ret->is_loaded = 1;
+	ret->filename = strdup(filename);
+	ALLEGE(ret->filename != NULL);
+
+	char * line;
+	int line_nr = 0;
+	while (1)
+	{
+		line = ac_session_getline(f);
+		if (line == NULL) break;
+		if (line[0] == '#') continue;
+		rtrim(line);
+
+		switch (line_nr)
+		{
+			case AC_SESSION_CWD_LINE: 
+			{
+				temp = ac_session_set_working_directory(ret, line);
+				break;
+			}
+			case AC_SESSION_BSSID_LINE: 
+			{
+				temp = ac_session_set_bssid(ret, line);
+				break;
+			}
+			case AC_SESSION_WL_SETTINGS_LINE: 
+				{
+					temp = ac_session_set_wordlist_settings(ret, line);
+					break;
+				}
+			case AC_SESSION_ARGC_LINE: 
+			{
+				temp = ac_session_set_amount_arguments(ret, line);
+				break;
+			}
+			default: 
+			{
+				ret->argv[line_nr - SESSION_ARGUMENTS_LINE] = line;
+				temp = EXIT_SUCCESS;
+				break;
+			}
+		}
+
+		if (line_nr < SESSION_ARGUMENTS_LINE)
+		{
+			free(line);
+		}
+
+		if (temp == EXIT_FAILURE)
+		{
+			fclose(f);
+			ac_session_free(&ret);
+			return (NULL);
+		}
+
+		++line_nr;
+	}
+
+	fclose(f);
+	if (line_nr < SESSION_ARGUMENTS_LINE + 1)
+	{
+		ac_session_free(&ret);
+		return (NULL);
+	}
+
+	return (ret);
+}
+
+
+
+SESSION *
+ac_session_from_argv(argc, argv, filename)
+	const int argc
+	char ** argv
+	const char * filename
+CODE:
+	if (filename == NULL || filename[0] == 0 || argc <= 3 || argv == NULL)
+	{
+		return (NULL);
+	}
+
+	int fd = -1;
+	if ((fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666)) >= 0)
+	{
+
+		close(fd);
+	}
+	else
+	{
+
+		fprintf(stderr, "Session file already exists: %s\n", filename);
+		return (NULL);
+	}
+
+
+	SESSION * ret = ac_session_new();
+	if (ret == NULL)
+	{
+		return (NULL);
+	}
+	ac_session_init(ret);
+
+	ret->working_dir = get_current_working_directory();
+
+	ret->filename = strdup(filename);
+	ALLEGE(ret->filename != NULL);
+
+	ret->argv
+		= (char **) calloc(argc - AMOUNT_ARGUMENTS_IGNORE, sizeof(char *));
+	ALLEGE(ret->argv != NULL);
+
+	if (ret->working_dir == NULL)
+	{
+		ac_session_free(&ret);
+		return (NULL);
+	}
+
+	for (int i = 0; i < argc; ++i)
+	{
+		if (strcmp(argv[i], filename) == 0)
+		{
+			ret->argc--;
+			free(ret->argv[ret->argc]);
+			ret->argv[ret->argc] = NULL;
+			continue;
+		}
+
+		ret->argv[ret->argc] = strdup(argv[i]);
+		if (ret->argv[ret->argc] == NULL)
+		{
+			ac_session_free(&ret);
+			return (NULL);
+		}
+
+		ret->argc++;
+	}
+
+	RETVAL = (ret);
+OUTPUT:
+RETVAL
+
 
 int
 ac_session_save(s, pos, nb_keys_tried)
 	SESSION *s
 	uint64_t pos
 	long long int nb_keys_tried
-	  
-SESSION *
-ac_session_from_argv(argc, argv, filename)
-	const int argc
-	char **argv
-	const char *filename
-	
+CODE:
+	if (s == NULL || s->filename == NULL || s->working_dir == NULL
+		|| s->argc == 0
+		|| s->argv == NULL)
+	{
+		return (-1);
+	}
+
+	s->nb_keys_tried = nb_keys_tried;
+	ALLEGE(pthread_mutex_lock(&(s->mutex)) == 0);
+	FILE * f = fopen(s->filename, "w");
+	if (f == NULL)
+	{
+		ALLEGE(pthread_mutex_unlock(&(s->mutex)) == 0);
+		return (-1);
+	}
+	s->pos = pos;
+	fprintf(f, "%s\n", s->working_dir);
+	fprintf(f,
+			"%02X:%02X:%02X:%02X:%02X:%02X\n",
+			s->bssid[0],
+			s->bssid[1],
+			s->bssid[2],
+			s->bssid[3],
+			s->bssid[4],
+			s->bssid[5]);
+	fprintf(
+		f, "%d %" PRId64 " %lld\n", s->wordlist_id, s->pos, s->nb_keys_tried);
+	fprintf(f, "%d\n", s->argc);
+	for (int i = 0; i < s->argc; ++i)
+	{
+		fprintf(f, "%s\n", s->argv[i]);
+	}
+	fclose(f);
+	ALLEGE(pthread_mutex_unlock(&(s->mutex)) == 0);
+	return (0);
+
 
 int
 getBits(b, from,length)
 	unsigned char b
 	int from
 	int length
+
+
 
 FILE *
 openfile(filename, mode, fatal)
@@ -852,12 +1211,7 @@ set_node_complete()
 void
 remove_last_uncomplete_node()
 
-void
-reset_current_packet_pointer()
 
-
-BOOLEAN
-reset_current_packet_pointer_to_ap_packet()
 
 
 BOOLEAN
@@ -866,8 +1220,6 @@ reset_current_packet_pointer_to_client_packet()
 BOOLEAN
 next_packet_pointer()
 
-BOOLEAN
-next_packet_pointer_from_ap()
 
 BOOLEAN
 next_packet_pointer_from_client()
@@ -898,8 +1250,6 @@ print_statistics()
 	
 void 
 reset_current_packet_pointer()
-CODE:
-	_packet_elt_head->current = _packet_elt_head->first;
 
 
 BOOLEAN 
@@ -908,59 +1258,7 @@ CODE:
 	reset_current_packet_pointer();
 	return next_packet_pointer_from_ap();
 	
-int 
-get_average_signal_ap()
-CODE:
-	uint32_t all_signals;
-	uint32_t nb_packet_used;
-	int average_signal;
-	all_signals = nb_packet_used = 0;
-	average_signal = -1;
-	if (_pfh_in.linktype == LINKTYPE_PRISM_HEADER
-		|| _pfh_in.linktype == LINKTYPE_RADIOTAP_HDR)
-	{
 
-		if (reset_current_packet_pointer_to_ap_packet() == true)
-		{
-			do
-			{
-				if (_packet_elt_head->current->version_type_subtype
-						== BEACON_FRAME
-					|| _packet_elt_head->current->version_type_subtype
-						   == PROBE_RESPONSE)
-				{
-					nb_packet_used = adds_u32(nb_packet_used, 1U);
-					all_signals += _packet_elt_head->current->signal_quality;
-				}
-			} while (next_packet_pointer_same_fromToDS_and_source(
-						 _packet_elt_head->current)
-					 == true);
-			if (nb_packet_used > 0)
-			{
-				average_signal = (int) (all_signals / nb_packet_used);
-				if (((all_signals / (double) nb_packet_used) - average_signal)
-						* 100
-					> 50)
-				{
-					++average_signal;
-				}
-			}
-			printf("Average signal for AP packets: %d\n", average_signal);
-		}
-		else
-		{
-			puts("Average signal: No packets coming from the AP, cannot "
-				 "calculate it");
-		}
-	}
-	else
-	{
-		puts("Average signal cannot be calculated because headers does not "
-			 "include it");
-	}
-	return average_signal;
-
-	
 void 
 md5cryptsse(buf, salt, out, md5_type)
 	unsigned char * buf
@@ -1047,5 +1345,4 @@ dump_stuff_msg(message, x,  size)
 	const void *message
 	void *x
 	unsigned int size
-
 
