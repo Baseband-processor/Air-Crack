@@ -9,6 +9,8 @@ PTW_TABLEENTRY *    T_PTRREF
 PTW_SESSION *       T_PTRREF
 TIME *              T_PTRREF
 
+PRIVATE_NET *       T_PTRREF
+NETQUEUE *          T_PTROBJ
 PTW_STATE *         T_PTRREF
 WIF *               T_PTRREF
 TIME *              T_PTRREF

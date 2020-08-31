@@ -1,3 +1,4 @@
+
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -11,8 +12,16 @@
 
 #define QUEUE_MAX 666
 
+#define NET_SET_CHAN 1
+#define NET_GET_CHAN 1
+#define NET_GET_MAC 1
+#define NET_MAC 1
+#define NET_GET_MONITOR 1
+#define NET_WRITE 1
 #define NET_RC  1
 #define NET_PACKET 1
+#define NET_GET_RATE 1
+#define NET_SET_RATE 1	
 
 
 #define BEACON_FRAME 0x80
@@ -77,8 +86,8 @@ typedef struct netqueue NETQUEUE;
 
 typedef struct {
 	int pn_s;
-	NETQUEUE pn_queue;
-	NETQUEUE pn_queue_free;
+	NETQUEUE *pn_queue;
+	NETQUEUE *pn_queue_free;
 	int pn_queue_len;
 }priv_net;
 	
@@ -242,10 +251,10 @@ OUTPUT:
 
 void 
 queue_add(head, q)
-	struct netqueue * head
-	struct netqueue * q
+	NETQUEUE * head
+	NETQUEUE * q
 CODE:
-	struct netqueue * pos = head->q_prev;
+	NETQUEUE * pos = head->q_prev;
 	q->q_prev = pos;
 	q->q_next = pos->q_next;
 	q->q_next->q_prev = q;
@@ -253,19 +262,19 @@ CODE:
 		
 void 
 queue_del(q)
-	struct netqueue * q
+	NETQUEUE * q
 CODE:
 	q->q_prev->q_next = q->q_next;
 	q->q_next->q_prev = q->q_prev;
 
 int 
 queue_get(pn, buf, len)
-	struct priv_net * pn
+	PRIVATE_NET * pn
 	void * buf
 	int len
 CODE:
-	struct netqueue * head = &pn->pn_queue;
-	struct netqueue * q = head->q_next;
+	NETQUEUE * head = &pn->pn_queue;
+	NETQUEUE * q = head->q_next;
 	if (q == head) return 0;
 	assert(q->q_len <= len);
 	memcpy(buf, q->q_buf, q->q_len);
@@ -283,7 +292,7 @@ net_write(wi, ts, dlt, h80211, len, ti)
 	int len
 	Tx * ti
 CODE:
-	struct priv_net * pn = wi_priv(wi);
+	PRIVATE_NET * pn = wi_priv(wi);
 	int sz = sizeof(*ti);
 	unsigned char buf[2048];
 	unsigned char * ptr = buf;
@@ -312,7 +321,7 @@ int
 net_get_channel(wi)
 	WIF * wi
 CODE:
-	struct priv_net * pn = wi_priv(wi);
+	PRIVATE_NET * pn = wi_priv(wi);
 	return net_cmd(pn, NET_GET_CHAN, NULL, 0);
 
 int 
@@ -328,7 +337,7 @@ int
 net_get_rate(wi)
 	WIF * wi
 CODE:
-	struct priv_net * pn = wi_priv(wi);
+	PRIVATE_NET * pn = wi_priv(wi);
 	return net_cmd(pn, NET_GET_RATE, NULL, 0);
 
 
@@ -350,7 +359,7 @@ net_read(wi, ts, dlt, h80211, len, ri)
 	int len
 	Rx * ri
 CODE:
-	struct priv_net * pn = wi_priv(wi);
+	PRIVATE_NET * pn = wi_priv(wi);
 	uint32_t buf[512] = {0};
 	unsigned char * bufc = (unsigned char *) buf;
 	int cmd;
@@ -404,7 +413,7 @@ net_open(interface)
 	char * interface
 CODE:
 	WIF *wi;
-	struct priv_net * pn;
+	PRIVATE_NET * pn;
 	int s;
 	wi = wi_alloc(sizeof(*pn));
 	if (!wi) return NULL;
@@ -440,21 +449,20 @@ net_read_exact(s, argoument,  length)
 	void *argoument
 	int length
 
-
 int
 net_get(s, arg, len)
 	int s
 	void * arg
 	int * len
 CODE:
-	struct net_hdr nh;
+	struct net_hdr *nh;
 	int plen;
 
 	if (net_read_exact(s, &nh, sizeof(nh)) == -1)
 	{
 		return -1;
 	}
-	plen = ntohl(nh.nh_len);
+	plen = ntohl(nh->nh_len);
 	assert(plen <= *len && plen >= 0);
 
 	*len = plen;
@@ -462,7 +470,7 @@ CODE:
 	{
 		return -1;
 	}
-	return nh.nh_type;
+	return nh->nh_type;
 
 NETQUEUE * 
 queue_get_slot(pn)
@@ -985,6 +993,5 @@ dump_stuff_msg(message, x,  size)
 	const void *message
 	void *x
 	unsigned int size
-
 
 
