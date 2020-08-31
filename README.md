@@ -71,6 +71,23 @@ and the suggested libraries are:
  *   Tcmalloc
  *   Zlib
 
+
+**Future works and directions**
+
+This library is the result of 2 months of hard work and, still now, there are several problem related to the perl-types conversion, 
+Probably the project will grow even more, my main ideas are:
+
+- [ ] offer a full coverage for the Reaver header files
+- [ ] Integrate Air::Crack with other modules, those are
+   * Air::Lorcon2 -> interface to Lorcon2 library
+   * Air::Pcap -> interface to airpcap library
+   * Air::Reaver -> interface to reaver WPS tool
+   * Air::KRACK -> implementation of the KRACK attack
+   * Air::FakeAP -> implementation of Fluxion
+   
+- [ ] Write a brief PDF manual about the six perl wireless-security module
+
+
 **Aircrack-ng free RESOURCES**
 
 this time the search for documents related to aircrack-ng was very simple, 
