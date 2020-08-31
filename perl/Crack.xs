@@ -430,17 +430,93 @@ CODE:
 	pn->pn_s = s;
 	pn->pn_queue.q_next = pn->pn_queue.q_prev = &pn->pn_queue;
 	pn->pn_queue_free.q_next = pn->pn_queue_free.q_prev = &pn->pn_queue_free;
-
 	RETVAL = wi;
 OUTPUT:
 RETVAL
 
+int
+net_get(s, arg, len)
+	int s
+	void * arg
+	int * len
+CODE:
+	struct net_hdr nh;
+	int plen;
+
+	if (net_read_exact(s, &nh, sizeof(nh)) == -1)
+	{
+		return -1;
+	}
+	plen = ntohl(nh.nh_len);
+	assert(plen <= *len && plen >= 0);
+
+	*len = plen;
+	if ((*len) && (net_read_exact(s, arg, *len) == -1))
+	{
+		return -1;
+	}
+	return nh.nh_type;
+	
+int 
+net_get_nopacket(pn, arg, len)
+	PRIVATE_NET *pn
+	void *arg
+	int *len
+CODE:
+	unsigned char buf[2048];
+	int l = sizeof(buf);
+	int c;
+	while (1)
+	{
+		l = sizeof(buf);
+		c = net_get(pn->pn_s, buf, &l);
+		if (c < 0) return c;
+
+		if (c != NET_PACKET && c > 0) break;
+
+		if (c > 0) net_enque(pn, buf, l);
+	}
+
+	assert(l <= *len);
+	memcpy(arg, buf, l);
+	*len = l;
+	return c;
+	
 int
 net_send(s, command, argoument, length)
 	int s
 	int command
 	void *argoument
 	int length
+
+int 
+net_cmd(pn, command, arg, alen)
+	PRIVATE_NET * pn
+	int command
+	void * arg
+	int alen
+CODE:
+	uint32_t rc = 0;
+	int len;
+	int cmd;
+
+	if (net_send(pn->pn_s, command, arg, alen) == -1)
+	{
+		return -1;
+	}
+
+	len = sizeof(rc);
+	cmd = net_get_nopacket(pn, &rc, &len);
+	if (cmd == -1)
+	{
+		return -1;
+	}
+	assert(cmd == NET_RC);
+	assert(len == sizeof(rc));
+	RETVAL = ntohl(rc);
+OUTPUT:
+RETVAL
+
 
 int
 net_read_exact(s, argoument,  length)
