@@ -255,7 +255,74 @@ CODE:
 	queue_add(&pn->pn_queue_free, q);
 	return q->q_len;
 
-		
+
+int 
+net_write(wi, ts, dlt, h80211, len, ti)
+	WIF * wi
+	TIME * ts
+	int dlt
+	unsigned char * h80211
+	int len
+	Tx * ti
+CODE:
+	struct priv_net * pn = wi_priv(wi);
+	int sz = sizeof(*ti);
+	unsigned char buf[2048];
+	unsigned char * ptr = buf;
+	(void) ts;
+	(void) dlt;
+	if (ti)
+		memcpy(ptr, ti, sz); 
+	else
+		memset(ptr, 0, sizeof(*ti)); 
+
+	ptr += sz;
+	memcpy(ptr, h80211, len);
+	sz += len;
+	return net_cmd(pn, NET_WRITE, buf, sz);
+
+int 
+net_set_channel(wi, channel)
+	WIF *wi
+	int channel
+CODE:
+	uint32_t c = htonl(channel);
+	return net_cmd(wi_priv(wi), NET_SET_CHAN, &c, sizeof(c));
+
+
+int 
+net_get_channel(wi)
+	WIF * wi
+CODE:
+	struct priv_net * pn = wi_priv(wi);
+	return net_cmd(pn, NET_GET_CHAN, NULL, 0);
+
+int 
+net_set_rate(wi, rate)
+	WIF *wi
+	int rate
+CODE:
+	uint32_t c = htonl(rate);
+	return net_cmd(wi_priv(wi), NET_SET_RATE, &c, sizeof(c));
+
+
+int 
+net_get_rate(wi)
+	WIF * wi
+CODE:
+	struct priv_net * pn = wi_priv(wi);
+	return net_cmd(pn, NET_GET_RATE, NULL, 0);
+
+
+int 
+net_get_monitor(wi)
+	WIF *wi
+CODE:
+	return net_cmd(wi_priv(wi), NET_GET_MONITOR, NULL, 0);
+
+
+
+
 int 
 net_read(wi, ts, dlt, h80211, len, ri)
 	WIF * wi
