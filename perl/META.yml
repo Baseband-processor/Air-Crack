@@ -1,7 +1,7 @@
 ---
-abstract: 'basic aircrack interface library'
+abstract: 'basic wireless security library which uses aircrack-ng as back-end'
 author:
-  - 'BASEBAND <BASEBAND_at_cpan.org>'
+  - 'Edoardo Mantovani aka BASEBAND <BASEBAND_at_cpan.org>'
 build_requires:
   ExtUtils::MakeMaker: '0'
 configure_requires:
@@ -19,4 +19,5 @@ no_index:
     - inc
 requires:
   perl: '5.22.1'
-version: '0.03'
+  Linux::Distribution: "0"
+version: '17.7'

@@ -26,7 +26,7 @@ The document has moved\n\
 
 
 
-our $VERSION = '0.03';
+our $VERSION = '17.7';
 use base qw(Exporter DynaLoader);
 
 our %EXPORT_TAGS = (
@@ -101,9 +101,11 @@ our %EXPORT_TAGS = (
       dump_stuff_msg
       
     )],
+
    packets => [qw(
       PACKET_302
    )],
+
 );
 
 our @EXPORT = (

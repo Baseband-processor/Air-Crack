@@ -1,5 +1,5 @@
 {
-   "abstract" : "Raw wireless frame injection using the Lorcon2 library",
+   "abstract" : "basic wireless security library which uses aircrack-ng as back-end",
    "author" : [
       "Edoardo Mantovani aka Baseband"
    ],
@@ -23,6 +23,8 @@
       "build" : {
          "requires" : {
             "ExtUtils::MakeMaker" : "0"
+	    "strict" : "0"
+	    "Linux::Distribution" : "0" 
          }
       },
       "configure" : {
@@ -37,5 +39,5 @@
       }
    },
    "release_status" : "stable",
-   "version" : "0.03"
+   "version" : "17.7"
 }

@@ -1,5 +1,9 @@
-use ExtUtils::MakeMaker;
+# Made by Edoardo Mantovani, 2020
 use strict;
+
+sub END{
+
+use ExtUtils::MakeMaker;
 
 WriteMakefile(
    NAME => 'Air::Crack',
@@ -7,12 +11,12 @@ WriteMakefile(
    AUTHOR => 'Edoardo Mantovani aka Baseband',
    DEFINE => '',
    VERSION_FROM => 'lib/Air/Crack.pm',
-   LIBS => ['-L/lib -L/usr/lib -L/usr/local/lib -LC/lib/osdep'],
-   INC => '-I/include -I/usr/include -I/usr/local/include -I/include/aircrack-ng/ptw/ -I/include/aircrack-ng/ce-wpa -I/include/aircrack-ng/third-party -I/include/aircrack-ng/support',
+   LIBS => ['-L/lib -L/usr/lib -L/usr/local/lib '],
+   INC => '-I/include -I/usr/include',
    MIN_PERL_VERSION => '5.22.1',
    PREREQ_PM => {
   },
 );
 
 
-
+}

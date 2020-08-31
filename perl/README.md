@@ -1,5 +1,5 @@
 Air::Crack
-============
+==============
 
 The README is used to introduce the module and provide instructions on
 how to install the module, any machine dependencies it may have (for
@@ -17,16 +17,23 @@ decide whether fixes for the module are worth downloading.
 To install this module type the following:
 
 ```shell
+
    sudo make
+
 ```
 
 Just execute the makefile script outside the C and perl directory, for now there are no tests, they will be added in future.
 
 **DEPENDENCIES**
 
-This module requires these other modules and libraries:
+This library, for working properly requires the following programs:
 
+  - perl
+  - C compiler 
+  - Linux::Distribution perl library
+  - Config perl library
   - Aircrack
+
   
 `From the Aircrack README file I report the requirements:`
 
@@ -46,20 +53,20 @@ This module requires these other modules and libraries:
 and the suggested libraries are:
 
  *   openssl
- *   Gcrypt                      
- *   OpenSSL                     
- *   Ethtool                     
- *   Libnl                      
- *   Airpcap                     
- *   Cmocka                      
- *   DUMA                          
- *   Hwloc                         
- *   Jemalloc                    
- *   Pcap                        
- *   Pcre                       
- *   Sqlite                      
- *   Tcmalloc                    
- *   Zlib                        
+ *   Gcrypt
+ *   OpenSSL
+ *   Ethtool
+ *   Libnl
+ *   Airpcap
+ *   Cmocka
+ *   DUMA
+ *   Hwloc
+ *   Jemalloc
+ *   Pcap
+ *   Pcre
+ *   Sqlite
+ *   Tcmalloc
+ *   Zlib
 
 
 
