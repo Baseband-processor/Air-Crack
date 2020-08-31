@@ -28,11 +28,11 @@ Just execute the makefile script outside the C and perl directory, for now there
 
 This library, for working properly requires the following programs:
 
-  -[x] perl
-  -[x] C compiler 
-  -[x] Linux::Distribution perl library
-  -[x] Config perl library
-  -[x] Aircrack-ng
+  - [x] perl
+  - [x] C compiler 
+  - [x] Linux::Distribution perl library
+  - [x] Config perl library
+  - [x] Aircrack-ng
 
   
 `From the Aircrack README file I report the requirements:`
