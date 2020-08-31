@@ -9,6 +9,9 @@
 #define FAILURE 1
 #define RESTART 2
 
+#define QUEUE_MAX 666
+
+
 #define BEACON_FRAME 0x80
 #define PROBE_RESPONSE 0x50
 #define AUTHENTICATION 0xB0
@@ -170,6 +173,13 @@ CODE:
 	else
 		return -1;
 
+
+int 
+handshake(s)
+	int s
+CODE:
+	if (s)
+	return 0;
 	
 int 
 do_net_open(interface)
