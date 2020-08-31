@@ -5,6 +5,16 @@
 #include "Ctxs.h"
 #include <netinet/in.h>
 
+#define ALLEGE(c)                                                              \
+	do                                                                         \
+	{                                                                          \
+		if (!(c))                                                              \
+		{                                                                      \
+			fprintf(stderr, "FAILED:%s:%d: %s\n", __FILE__, __LINE__, #c);     \
+			abort();                                                           \
+		}                                                                      \
+	} while (0)
+
 #define SUCCESS 0
 #define FAILURE 1
 #define RESTART 2
