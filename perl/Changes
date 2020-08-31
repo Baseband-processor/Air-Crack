@@ -1,3 +1,11 @@
+17.7 Aug 31 2020
+
+- added resources
+- tested and implemented the dependency installer in perl
+- rewritten makefile, now installs everything under /usr/include/aircrack-ng
+- added few more functions to XS
+- added logo and other front-end utils
+
 0.03  2020
    - first version
 
