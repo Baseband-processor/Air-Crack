@@ -4,6 +4,54 @@
 
 #include "Ctxs.h"
 
+
+#define SUCCESS 0
+#define FAILURE 1
+#define RESTART 2
+
+#define O_BINARY 0
+#define WPA_DATA_KEY_BUFFER_LENGTH 128
+
+#define MAX_DICTS 128
+
+#define ASCII_LOW_T 0x21
+#define ASCII_HIGH_T 0x7E
+#define ASCII_VOTE_STRENGTH_T 150
+#define ASCII_DISREGARD_STRENGTH 1
+
+#define TEST_MIN_IVS 4
+#define TEST_MAX_IVS 32
+
+#define PTW_TRY_STEP 5000
+
+#define KEYHSBYTES PTW_KEYHSBYTES
+
+#define MAX_THREADS 256
+
+
+
+#define ASCII_LOW_T 0x21
+#define ASCII_HIGH_T 0x7E
+#define ASCII_VOTE_STRENGTH_T 150
+#define ASCII_DISREGARD_STRENGTH 1
+
+#define TEST_MIN_IVS 4
+#define TEST_MAX_IVS 32
+
+#define PTW_TRY_STEP 5000
+
+#define KEYHSBYTES PTW_KEYHSBYTES
+
+#define MAX_THREADS 256
+
+#define CLOSE_IT 100000
+#define IEEE80211_FC1_DIR_FROMDS 0x02 
+#define KEYLIMIT 1000000
+
+#define N_ATTACKS 17
+
+
+
 typedef bool BOOLEAN;
 typedef struct WPS_INFO         WPS_INFORMATION;
 typedef rc4test_func            RC4TEST;
