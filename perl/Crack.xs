@@ -1,4 +1,3 @@
-
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -73,6 +72,14 @@
 #define KEYLIMIT 1000000
 
 #define N_ATTACKS 17
+
+typedef struct {
+	uint8_t nh_type;
+	uint32_t nh_len;
+	uint8_t nh_data[0];
+}net_hdr; 
+
+typedef struct net_hdr NET_HDR;
 
 typedef struct  {
 	unsigned char q_buf[2048];
@@ -455,7 +462,7 @@ net_get(s, arg, len)
 	void * arg
 	int * len
 CODE:
-	struct net_hdr *nh;
+	NET_HDR *nh;
 	int plen;
 
 	if (net_read_exact(s, &nh, sizeof(nh)) == -1)
