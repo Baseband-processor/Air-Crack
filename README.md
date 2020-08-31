@@ -71,6 +71,26 @@ and the suggested libraries are:
  *   Tcmalloc
  *   Zlib
 
+**Aircrack-ng free RESOURCES**
+
+this time the search for documents related to aircrack-ng was very simple, 
+especially because they had an avalanche of sources in their last site, I decided to enclose a few more:
+
+* [aircrack-ng official documentation](https://www.aircrack-ng.org/documentation.html)
+* [aircrack-ng official tutorials](https://www.aircrack-ng.org/doku.php?id=tutorial)
+* [aircrack-ng official book](http://www2.aircrack-ng.org/hiexpo/aircrack-ng_book_v1.pdf)
+* [Penetration Testing of Wireless Networks from (KUJSS)](https://www.iasj.net/iasj?func=fulltext&aId=124737)
+* [WPA Exploitation In The World Of Wireless Network](http://ijarcet.org/wp-content/uploads/IJARCET-VOL-1-ISSUE-4-609-618.pdf)
+* [brief mitm tutorial with aircrack-ng and wireshark](https://dl.packetstormsecurity.net/papers/wireless/wificapture.pdf)
+* [WEP traffic forgery](http://sweet.ua.pt/andre.zuquete/Aulas/SAR/13-14/docs/g8-WEP.pdf)
+
+**Aircrack-ng Books**
+
+Aircrack-ng has been nominated in a ton of books, in this list I'll show some of the best:
+
+* _Rtfm: Red Team Field Manual_
+* _Penetration Testing: Communication Media Testing (EC-Council Certified Security Analyst (ECSA))_
+* _Wi-Foo: The Secrets of Wireless Hacking_ (2020 version seems really valid)
 
 
 **COPYRIGHT AND LICENCE**
