@@ -3,11 +3,20 @@
 #include "XSUB.h"
 
 #include "Ctxs.h"
-
+#include <netinet/in.h>
 
 #define SUCCESS 0
 #define FAILURE 1
 #define RESTART 2
+
+#define BEACON_FRAME 0x80
+#define PROBE_RESPONSE 0x50
+#define AUTHENTICATION 0xB0
+#define ASSOCIATION_REQUEST 0x00
+
+#define LINKTYPE_PRISM_HEADER 119
+#define LINKTYPE_RADIOTAP_HDR 127
+#define LINKTYPE_PPI_HDR 192
 
 #define O_BINARY 0
 #define WPA_DATA_KEY_BUFFER_LENGTH 128
@@ -50,6 +59,29 @@
 
 #define N_ATTACKS 17
 
+typedef struct packet_elt_header
+{
+	struct packet_elt * first;
+	struct packet_elt * current;
+	struct packet_elt * last;
+	int nb_packets;
+	int average_signal; 
+} * _packet_elt_head;
+
+typedef struct  {
+  unsigned long s_addr;  
+}in_addr;
+
+typedef struct in_addr IN_ADDR;
+
+typedef struct  {
+    short            sin_family;   
+    unsigned short   sin_port;   
+    IN_ADDR   sin_addr;     
+    char    sin_zero[8]; 
+}sockaddr_in;
+
+typedef struct sockaddr_in SOCKADDR_IN;
 
 
 typedef bool BOOLEAN;
@@ -61,6 +93,8 @@ typedef struct ac_channel_info  AC_CHANNEL_INFO;
 typedef struct PTW_tableentry   PTW_TABLEENTRY;
 typedef struct PTW_session      PTW_SESSION;
 typedef struct PTW_attackstate  PTW_STATE;
+static struct pcap_file_header _pfh_in;
+static struct pcap_file_header _pfh_out;
 
 typedef struct  tx_info{
 	uint32_t ti_rate;
@@ -122,13 +156,95 @@ int
 getFrequencyFromChannel(channel)
 	int channel
 
+
 int
 getChannelFromFrequency(frequency)
 	int frequency
+CODE:
+	if (frequency >= 2412 && frequency <= 2472)
+		return (frequency - 2407) / 5;
+	else if (frequency == 2484)
+		return 14;
+	else if (frequency >= 4920 && frequency <= 6100)
+		return (frequency - 5000) / 5;
+	else
+		return -1;
+
 	
+int 
+do_net_open(interface)
+	char * interface
+CODE:
+	int s, port;
+	char ip[16];
+	SOCKADDR_IN s_in;
+
+	port = get_ip_port(iface, ip, sizeof(ip) - 1);
+	if (port == -1) return -1;
+
+	memset(&s_in, 0, sizeof(SOCKADDR_IN *));
+	s_in.sin_family = PF_INET;
+	s_in.sin_port = htons(port);
+	if (!inet_aton(ip, &s_in.sin_addr)) return -1;
+
+	if ((s = socket(s_in.sin_family, SOCK_STREAM, IPPROTO_TCP)) == -1)
+		return -1;
+	printf("Connecting to %s port %d...\n", ip, port);
+
+	if (connect(s, (struct sockaddr *) &s_in, sizeof(s_in)) == -1)
+	{
+		close(s);
+		printf("Failed to connect\n");
+		return -1;
+	}
+	if (handshake(s) == -1)
+	{
+		close(s);
+
+		printf("Failed to connect - handshake failed\n");
+
+		return -1;
+	}
+	printf("Connection successful\n");
+RETVAL = s;
+OUTPUT:
+	RETVAL
+		
 WIF * 
 net_open(interface)
 	char * interface
+CODE:
+	WIF *wi;
+	struct priv_net * pn;
+	int s;
+	wi = wi_alloc(sizeof(*pn));
+	if (!wi) return NULL;
+	wi->wi_read = net_read;
+	wi->wi_write = net_write;
+	wi->wi_set_channel = net_set_channel;
+	wi->wi_get_channel = net_get_channel;
+	wi->wi_set_rate = net_set_rate;
+	wi->wi_get_rate = net_get_rate;
+	wi->wi_close = net_close;
+	wi->wi_fd = net_fd;
+	wi->wi_get_mac = net_get_mac;
+	wi->wi_get_monitor = net_get_monitor;
+
+	s = do_net_open(interface);
+	if (s == -1)
+	{
+		do_net_free(wi);
+		return NULL;
+	}
+
+	pn = wi_priv(wi);
+	pn->pn_s = s;
+	pn->pn_queue.q_next = pn->pn_queue.q_prev = &pn->pn_queue;
+	pn->pn_queue_free.q_next = pn->pn_queue_free.q_prev = &pn->pn_queue_free;
+
+	RETVAL = wi;
+OUTPUT:
+RETVAL
 
 int
 net_send(s, command, argoument, length)
@@ -425,13 +541,71 @@ write_packets()
 BOOLEAN
 print_statistics()
 	
+
 	
-char *
-status_format(status)
-	int status
+void 
+reset_current_packet_pointer()
+CODE:
+	_packet_elt_head->current = _packet_elt_head->first;
+
+
+BOOLEAN 
+reset_current_packet_pointer_to_ap_packet()
+CODE:
+	reset_current_packet_pointer();
+	return next_packet_pointer_from_ap();
 	
 int 
 get_average_signal_ap()
+CODE:
+	uint32_t all_signals;
+	uint32_t nb_packet_used;
+	int average_signal;
+	all_signals = nb_packet_used = 0;
+	average_signal = -1;
+	if (_pfh_in.linktype == LINKTYPE_PRISM_HEADER
+		|| _pfh_in.linktype == LINKTYPE_RADIOTAP_HDR)
+	{
+
+		if (reset_current_packet_pointer_to_ap_packet() == true)
+		{
+			do
+			{
+				if (_packet_elt_head->current->version_type_subtype
+						== BEACON_FRAME
+					|| _packet_elt_head->current->version_type_subtype
+						   == PROBE_RESPONSE)
+				{
+					nb_packet_used = adds_u32(nb_packet_used, 1U);
+					all_signals += _packet_elt_head->current->signal_quality;
+				}
+			} while (next_packet_pointer_same_fromToDS_and_source(
+						 _packet_elt_head->current)
+					 == true);
+			if (nb_packet_used > 0)
+			{
+				average_signal = (int) (all_signals / nb_packet_used);
+				if (((all_signals / (double) nb_packet_used) - average_signal)
+						* 100
+					> 50)
+				{
+					++average_signal;
+				}
+			}
+			printf("Average signal for AP packets: %d\n", average_signal);
+		}
+		else
+		{
+			puts("Average signal: No packets coming from the AP, cannot "
+				 "calculate it");
+		}
+	}
+	else
+	{
+		puts("Average signal cannot be calculated because headers does not "
+			 "include it");
+	}
+	return average_signal;
 
 	
 void 
