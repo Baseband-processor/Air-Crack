@@ -20,6 +20,40 @@
 #define FAILURE 1
 #define RESTART 2
 
+#define STD_OPN 0x0001u
+#define STD_WEP 0x0002u
+#define STD_WPA 0x0004u
+#define STD_WPA2 0x0008u
+
+#define NULL_MAC (unsigned char *) "\x00\x00\x00\x00\x00\x00"
+#define BROADCAST (unsigned char *) "\xFF\xFF\xFF\xFF\xFF\xFF"
+#define SPANTREE (unsigned char *) "\x01\x80\xC2\x00\x00\x00"
+
+#define ENC_WEP 0x0010u
+#define ENC_TKIP 0x0020u
+#define ENC_WRAP 0x0040u
+#define ENC_CCMP 0x0080u
+#define ENC_WEP40 0x1000u
+#define ENC_WEP104 0x0100u
+#define ENC_GCMP 0x4000u
+#define ENC_GMAC 0x8000u
+
+#define ENC_FIELD                                                              \
+	(ENC_WEP | ENC_TKIP | ENC_WRAP | ENC_CCMP | ENC_WEP40 | ENC_WEP104         \
+	 | ENC_GCMP                                                                \
+	 | ENC_GMAC)
+
+#define AUTH_OPN 0x0200u
+#define AUTH_PSK 0x0400u
+#define AUTH_MGT 0x0800u
+#define AUTH_CMAC 0x10000u
+#define AUTH_SAE 0x20000u
+#define AUTH_OWE 0x40000u
+
+#define AUTH_FIELD                                                             \
+	(AUTH_OPN | AUTH_PSK | AUTH_CMAC | AUTH_MGT | AUTH_SAE | AUTH_OWE)
+
+
 #define AMOUNT_ARGUMENTS_IGNORE 2
 #define EXIT_SUCCESS 0
 
@@ -103,6 +137,98 @@ typedef struct net_hdr{
 	uint8_t nh_data[0];
 }NET_HDR; 
 
+
+typedef struct communication_options{
+	uint8_t f_bssid[6];
+	uint8_t f_dmac[6];
+	uint8_t f_smac[6];
+	uint8_t f_netmask[6];
+	int f_minlen;
+	int f_maxlen;
+	int f_type;
+	int f_subtype;
+	int f_tods;
+	int f_fromds;
+	int f_iswep;
+
+	uint8_t deauth_rc;
+	int r_nbpps;
+	unsigned int r_fctrl;
+	uint8_t r_bssid[6];
+	uint8_t r_dmac[6];
+	uint8_t r_smac[6];
+	uint8_t r_trans[6];
+	uint8_t r_dip[4];
+	uint8_t r_sip[4];
+	char r_essid[33];
+	int r_fromdsinj;
+	char r_smac_set;
+
+	char ip_out[16]; 
+	char ip_in[16];
+	int port_out;
+	int port_in;
+
+	char * iface_out;
+	char * s_face;
+	char * s_file;
+	uint8_t * prga;
+	size_t prgalen;
+
+	int a_mode;
+	int a_count;
+	int a_delay;
+	int f_retry;
+
+	int ringbuffer;
+	int ghost;
+
+	int delay;
+	int npackets;
+
+	int fast;
+	int bittest;
+
+	int nodetect;
+	int ignore_negative_one;
+	int rtc;
+
+	int reassoc;
+
+	int crypt;
+	uint8_t wepkey[64];
+	size_t weplen;
+
+	int f_index; 
+	FILE * f_txt; 
+	FILE * f_kis; 
+	FILE * f_kis_xml; 
+	FILE * f_gps; 
+	FILE * f_cap; 
+	FILE * f_ivs; 
+	FILE * f_xor; 
+	FILE * f_logcsv;
+
+	char * f_cap_name;
+	char * prefix;
+
+	int output_format_pcap;
+	int output_format_csv;
+	int output_format_kismet_csv;
+	int output_format_kismet_netxml;
+	int output_format_log_csv;
+
+	int usegpsd; 
+	int record_data; 
+
+	unsigned char sharedkey[3][4096]; 
+	time_t sk_start;
+	size_t sk_len;
+	size_t sk_len2;
+
+	int quiet;
+	int verbose;
+}opt;
 
 typedef struct  netqueue{
 	unsigned char q_buf[2048];
@@ -388,7 +514,6 @@ CODE:
 		memcpy(ptr, ti, sz); 
 	else
 		memset(ptr, 0, sizeof(*ti)); 
-
 	ptr += sz;
 	memcpy(ptr, h80211, len);
 	sz += len;
@@ -715,9 +840,7 @@ wi_set_rate(wi, rate)
 int
 wi_get_monitor(wi)
 	WIF *wi
-CODE:	
-	assert(wi->wi_get_monitor);
-	return wi->wi_get_monitor(wi)
+
 	
 int
 wi_get_mtu(wi)
@@ -753,7 +876,275 @@ dump_write_csv(first_ap, first_st, encryption)
 	AP * first_ap
 	ST * first_st
 	unsigned int encryption
-	
+CODE:
+	int i, probes_written;
+	TM * ltime;
+	AP * ap_cur;
+	ST * st_cur;
+	char * temp;
+
+	if (!opt.record_data || !opt.output_format_csv) return (0);
+
+	fseek(opt.f_txt, 0, SEEK_SET);
+
+	fprintf(opt.f_txt,
+			"\r\nBSSID, First time seen, Last time seen, channel, Speed, "
+			"Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP, "
+			"ID-length, ESSID, Key\r\n");
+
+	ap_cur = first_ap;
+
+	while (ap_cur != NULL)
+	{
+		if (memcmp(ap_cur->bssid, BROADCAST, 6) == 0)
+		{
+			ap_cur = ap_cur->next;
+			continue;
+		}
+
+		if (ap_cur->security != 0 && encryption != 0
+			&& ((ap_cur->security & encryption) == 0))
+		{
+			ap_cur = ap_cur->next;
+			continue;
+		}
+
+		if (is_filtered_essid(ap_cur->essid))
+		{
+			ap_cur = ap_cur->next;
+			continue;
+		}
+
+		fprintf(opt.f_txt,
+				"%02X:%02X:%02X:%02X:%02X:%02X, ",
+				ap_cur->bssid[0],
+				ap_cur->bssid[1],
+				ap_cur->bssid[2],
+				ap_cur->bssid[3],
+				ap_cur->bssid[4],
+				ap_cur->bssid[5]);
+
+		ltime = localtime(&ap_cur->tinit);
+
+		fprintf(opt.f_txt,
+				"%04d-%02d-%02d %02d:%02d:%02d, ",
+				1900 + ltime->tm_year,
+				1 + ltime->tm_mon,
+				ltime->tm_mday,
+				ltime->tm_hour,
+				ltime->tm_min,
+				ltime->tm_sec);
+
+		ltime = localtime(&ap_cur->tlast);
+
+		fprintf(opt.f_txt,
+				"%04d-%02d-%02d %02d:%02d:%02d, ",
+				1900 + ltime->tm_year,
+				1 + ltime->tm_mon,
+				ltime->tm_mday,
+				ltime->tm_hour,
+				ltime->tm_min,
+				ltime->tm_sec);
+
+		fprintf(opt.f_txt, "%2d, %3d,", ap_cur->channel, ap_cur->max_speed);
+
+		if ((ap_cur->security
+			 & (STD_OPN | STD_WEP | STD_WPA | STD_WPA2 | AUTH_SAE | AUTH_OWE))
+			== 0)
+			fprintf(opt.f_txt, " ");
+		else
+		{
+			if (ap_cur->security & STD_WPA2)
+			{
+				if (ap_cur->security & AUTH_SAE || ap_cur->security & AUTH_OWE)
+					fprintf(opt.f_txt, " WPA3");
+				fprintf(opt.f_txt, " WPA2");
+			}
+			if (ap_cur->security & STD_WPA) fprintf(opt.f_txt, " WPA");
+			if (ap_cur->security & STD_WEP) fprintf(opt.f_txt, " WEP");
+			if (ap_cur->security & STD_OPN) fprintf(opt.f_txt, " OPN");
+		}
+
+		fprintf(opt.f_txt, ",");
+
+		if ((ap_cur->security & ENC_FIELD) == 0)
+			fprintf(opt.f_txt, " ");
+		else
+		{
+			if (ap_cur->security & ENC_CCMP) fprintf(opt.f_txt, " CCMP");
+			if (ap_cur->security & ENC_WRAP) fprintf(opt.f_txt, " WRAP");
+			if (ap_cur->security & ENC_TKIP) fprintf(opt.f_txt, " TKIP");
+			if (ap_cur->security & ENC_WEP104) fprintf(opt.f_txt, " WEP104");
+			if (ap_cur->security & ENC_WEP40) fprintf(opt.f_txt, " WEP40");
+			if (ap_cur->security & ENC_WEP) fprintf(opt.f_txt, " WEP");
+			if (ap_cur->security & ENC_GCMP) fprintf(opt.f_txt, " GCMP");
+			if (ap_cur->security & ENC_GMAC) fprintf(opt.f_txt, " GMAC");
+		}
+
+		fprintf(opt.f_txt, ",");
+
+		if ((ap_cur->security & AUTH_FIELD) == 0)
+			fprintf(opt.f_txt, "   ");
+		else
+		{
+			if (ap_cur->security & AUTH_SAE) fprintf(opt.f_txt, " SAE");
+			if (ap_cur->security & AUTH_MGT) fprintf(opt.f_txt, " MGT");
+			if (ap_cur->security & AUTH_CMAC) fprintf(opt.f_txt, " CMAC");
+			if (ap_cur->security & AUTH_PSK)
+			{
+				if (ap_cur->security & STD_WEP)
+					fprintf(opt.f_txt, " SKA");
+				else
+					fprintf(opt.f_txt, " PSK");
+			}
+			if (ap_cur->security & AUTH_OWE) fprintf(opt.f_txt, " OWE");
+			if (ap_cur->security & AUTH_OPN) fprintf(opt.f_txt, " OPN");
+		}
+
+		fprintf(opt.f_txt,
+				", %3d, %8lu, %8lu, ",
+				ap_cur->avg_power,
+				ap_cur->nb_bcn,
+				ap_cur->nb_data);
+
+		fprintf(opt.f_txt,
+				"%3d.%3d.%3d.%3d, ",
+				ap_cur->lanip[0],
+				ap_cur->lanip[1],
+				ap_cur->lanip[2],
+				ap_cur->lanip[3]);
+
+		fprintf(opt.f_txt, "%3d, ", ap_cur->ssid_length);
+
+		if (verifyssid(ap_cur->essid))
+			fprintf(opt.f_txt, "%s, ", ap_cur->essid);
+		else
+		{
+			temp = format_text_for_csv(ap_cur->essid,
+									   (size_t) ap_cur->ssid_length);
+			if (temp != NULL) //-V547
+			{
+				fprintf(opt.f_txt, "%s, ", temp);
+				free(temp);
+			}
+		}
+
+		if (ap_cur->key != NULL)
+		{
+			for (i = 0; i < (int) strlen(ap_cur->key); i++)
+			{
+				fprintf(opt.f_txt, "%02X", ap_cur->key[i]);
+				if (i < (int) (strlen(ap_cur->key) - 1))
+					fprintf(opt.f_txt, ":");
+			}
+		}
+
+		fprintf(opt.f_txt, "\r\n");
+
+		ap_cur = ap_cur->next;
+	}
+
+	fprintf(opt.f_txt, "\r\nStation MAC, First time seen, Last time seen, " 
+	"Power, # packets, BSSID, Probed ESSIDs\r\n");
+
+	st_cur = first_st;
+
+	while (st_cur != NULL)
+	{
+		ap_cur = st_cur->base;
+
+		if (ap_cur->nb_pkt < 2)
+		{
+			st_cur = st_cur->next;
+			continue;
+		}
+
+		fprintf(opt.f_txt,
+				"%02X:%02X:%02X:%02X:%02X:%02X, ",
+				st_cur->stmac[0],
+				st_cur->stmac[1],
+				st_cur->stmac[2],
+				st_cur->stmac[3],
+				st_cur->stmac[4],
+				st_cur->stmac[5]);
+
+		ltime = localtime(&st_cur->tinit);
+
+		fprintf(opt.f_txt,
+				"%04d-%02d-%02d %02d:%02d:%02d, ",
+				1900 + ltime->tm_year,
+				1 + ltime->tm_mon,
+				ltime->tm_mday,
+				ltime->tm_hour,
+				ltime->tm_min,
+				ltime->tm_sec);
+
+		ltime = localtime(&st_cur->tlast);
+
+		fprintf(opt.f_txt,
+				"%04d-%02d-%02d %02d:%02d:%02d, ",
+				1900 + ltime->tm_year,
+				1 + ltime->tm_mon,
+				ltime->tm_mday,
+				ltime->tm_hour,
+				ltime->tm_min,
+				ltime->tm_sec);
+
+		fprintf(opt.f_txt, "%3d, %8lu, ", st_cur->power, st_cur->nb_pkt);
+
+		if (!memcmp(ap_cur->bssid, BROADCAST, 6))
+			fprintf(opt.f_txt, "(not associated) ,");
+		else
+			fprintf(opt.f_txt,
+					"%02X:%02X:%02X:%02X:%02X:%02X,",
+					ap_cur->bssid[0],
+					ap_cur->bssid[1],
+					ap_cur->bssid[2],
+					ap_cur->bssid[3],
+					ap_cur->bssid[4],
+					ap_cur->bssid[5]);
+
+		probes_written = 0;
+		for (i = 0; i < NB_PRB; i++)
+		{
+			if (st_cur->ssid_length[i] == 0) continue;
+
+			if (verifyssid((const unsigned char *) st_cur->probes[i]))
+			{
+				temp = (char *) calloc(
+					1, (st_cur->ssid_length[i] + 1) * sizeof(char));
+				ALLEGE(temp != NULL);
+				memcpy(temp, st_cur->probes[i], st_cur->ssid_length[i] + 1u);
+			}
+			else
+			{
+				temp = format_text_for_csv((unsigned char *) st_cur->probes[i], (size_t) st_cur->ssid_length[i]);
+				ALLEGE(temp != NULL); 
+			}
+
+			if (probes_written == 0)
+			{
+				fprintf(opt.f_txt, "%s", temp);
+				probes_written = 1;
+			}
+			else
+			{
+				fprintf(opt.f_txt, ",%s", temp);
+			}
+
+			free(temp);
+		}
+
+		fprintf(opt.f_txt, "\r\n");
+
+		st_cur = st_cur->next;
+	}
+
+	fprintf(opt.f_txt, "\r\n");
+	fflush(opt.f_txt);
+
+	return (0);
+
 int 
 dump_write_airodump_ng_logcsv_add_ap(ap_cur, ri_power, tm_gpstime, gps_location) 
 	const AP * ap_cur
@@ -1050,7 +1441,7 @@ CODE:
 	}
 
 	return (ret);
-}
+
 
 
 
@@ -1210,8 +1601,6 @@ set_node_complete()
 
 void
 remove_last_uncomplete_node()
-
-
 
 
 BOOLEAN
