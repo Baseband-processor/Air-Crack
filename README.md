@@ -1,7 +1,7 @@
 Air::Crack
 ==============
 
-![image of Aircrack](./Aircrack-ng.jpg)
+![image of Aircrack](./aircrack-ng.jpg)
 
 
 The README is used to introduce the module and provide instructions on
