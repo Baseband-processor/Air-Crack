@@ -1151,14 +1151,116 @@ dump_write_airodump_ng_logcsv_add_ap(ap_cur, ri_power, tm_gpstime, gps_location)
 	const int32_t ri_power
 	TM * tm_gpstime
 	float gps_location
-	
+CODE:
+	if (ap_cur == NULL || !opt.output_format_log_csv || !opt.f_logcsv)
+	{
+		return (0);
+	}
+	TM * ltime = localtime(&ap_cur->tlast);
+	fprintf(opt.f_logcsv,
+			"%04d-%02d-%02d %02d:%02d:%02d,",
+			1900 + ltime->tm_year,
+			1 + ltime->tm_mon,
+			ltime->tm_mday,
+			ltime->tm_hour,
+			ltime->tm_min,
+			ltime->tm_sec);
+	fprintf(opt.f_logcsv,
+			"%04d-%02d-%02d %02d:%02d:%02d,",
+			1900 + tm_gpstime->tm_year,
+			1 + tm_gpstime->tm_mon,
+			tm_gpstime->tm_mday,
+			tm_gpstime->tm_hour,
+			tm_gpstime->tm_min,
+			tm_gpstime->tm_sec);
+
+	fprintf(opt.f_logcsv, "%s,", ap_cur->essid);
+
+
+	fprintf(opt.f_logcsv,
+			"%02X:%02X:%02X:%02X:%02X:%02X,",
+			ap_cur->bssid[0],
+			ap_cur->bssid[1],
+			ap_cur->bssid[2],
+			ap_cur->bssid[3],
+			ap_cur->bssid[4],
+			ap_cur->bssid[5]);
+
+	fprintf(opt.f_logcsv, "%d,", ri_power);
+
+	if ((ap_cur->security & (STD_OPN | STD_WEP | STD_WPA | STD_WPA2)) == 0)
+		fputs(" ", opt.f_logcsv);
+	else
+	{
+		if (ap_cur->security & STD_WPA2) fputs(" WPA2 ", opt.f_logcsv);
+		if (ap_cur->security & STD_WPA) fputs(" WPA ", opt.f_logcsv);
+		if (ap_cur->security & STD_WEP) fputs(" WEP ", opt.f_logcsv);
+		if (ap_cur->security & STD_OPN) fputs(" OPN", opt.f_logcsv);
+	}
+
+	fputs(",", opt.f_logcsv);
+	fprintf(opt.f_logcsv,
+			"%.6f,%.6f,%.3f,%.3f,AP\r\n",
+			gps_loc[0],
+			gps_loc[1],
+			gps_loc[5],
+			gps_loc[6]);
+	return (0);
+
+
 int 
-dump_write_airodump_ng_logcsv_add_client(ap_cur, st_cur, ri_power, tm_gpstime, gps_location)
-	const AP * ap_cur
-	const ST * st_cur
+dump_write_airodump_ng_logcsv_add_client(ap_cur, st_cur, ri_power, tm_gpstime, gps_loc)
+	AP * ap_cur
+	ST * st_cur
 	const int32_t ri_power
 	TM * tm_gpstime
-	float gps_location
+	float * gps_loc
+CODE:
+	if (st_cur == NULL || !opt.output_format_log_csv || !opt.f_logcsv)
+	{
+		return (0);
+	}
+	TM * ltime = localtime(&ap_cur->tlast);
+	fprintf(opt.f_logcsv,
+			"%04d-%02d-%02d %02d:%02d:%02d,",
+			1900 + ltime->tm_year,
+			1 + ltime->tm_mon,
+			ltime->tm_mday,
+			ltime->tm_hour,
+			ltime->tm_min,
+			ltime->tm_sec);
+
+	fprintf(opt.f_logcsv,
+			"%04d-%02d-%02d %02d:%02d:%02d,",
+			1900 + tm_gpstime->tm_year,
+			1 + tm_gpstime->tm_mon,
+			tm_gpstime->tm_mday,
+			tm_gpstime->tm_hour,
+			tm_gpstime->tm_min,
+			tm_gpstime->tm_sec);
+
+	fprintf(opt.f_logcsv, ",");
+	fprintf(opt.f_logcsv,
+			"%02X:%02X:%02X:%02X:%02X:%02X,",
+			st_cur->stmac[0],
+			st_cur->stmac[1],
+			st_cur->stmac[2],
+			st_cur->stmac[3],
+			st_cur->stmac[4],
+			st_cur->stmac[5]);
+
+	fprintf(opt.f_logcsv, "%d,", ri_power);
+	fprintf(opt.f_logcsv, ",");
+	fprintf(opt.f_logcsv,
+			"%.6f,%.6f,%.3f,%.3f,",
+			gps_loc[0],
+			gps_loc[1],
+			gps_loc[5],
+			gps_loc[6]);
+	fprintf(opt.f_logcsv, "Client\r\n");
+	return (0);
+	
+
 
 char *
 get_manufacturer_from_string(buffer)
