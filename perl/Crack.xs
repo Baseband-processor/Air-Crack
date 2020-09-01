@@ -5,7 +5,7 @@
 #include "Ctxs.h"
 #include <netinet/in.h>
 #include <linux/socket.h>
-#include <pcap.h>
+
 
 #define ALLEGE(c)                                                              \
 	do                                                                         \
@@ -1920,4 +1920,3 @@ dump_stuff_msg(message, x,  size)
 	const void *message
 	void *x
 	unsigned int size
-
