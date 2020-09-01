@@ -5,6 +5,7 @@
 #include "Ctxs.h"
 #include <netinet/in.h>
 #include <linux/socket.h>
+#include <pcap.h>
 
 #define ALLEGE(c)                                                              \
 	do                                                                         \
@@ -1668,7 +1669,90 @@ getBits(b, from,length)
 	int from
 	int length
 
+FILE *
+init_new_pcap(filename)
+	const char * filename
+CODE:
+	REQUIRE(filename != NULL);
 
+	FILE * f;
+	f = openfile(filename, "wb", 1);
+	if (f != NULL)
+	{
+		if (fwrite(&_pfh_out, 1, sizeof(_pfh_out), f)
+			!= (size_t) sizeof(_pfh_out))
+		{
+			perror("fwrite(pcap file header) failed");
+		}
+	}
+
+	RETVAL = f;
+OUTPUT:
+	RETVAL
+
+
+FILE * 
+open_existing_pcap(filename)
+	const char * filename
+CODE:
+	REQUIRE(filename != NULL);
+	FILE * f;
+	size_t temp_sizet;
+
+	f = fopen(filename, "rb");
+
+	if (f == NULL)
+	{
+		perror("Unable to open pcap");
+		return NULL;
+	}
+
+	temp_sizet = (size_t) sizeof(_pfh_in);
+
+	if (fread(&_pfh_in, 1, temp_sizet, f) != temp_sizet)
+	{
+		perror("fread(pcap file header) failed");
+		fclose(f);
+		return NULL;
+	}
+
+	if (_pfh_in.magic != TCPDUMP_MAGIC && _pfh_in.magic != TCPDUMP_CIGAM)
+	{
+		printf("\"%s\" isn't a pcap file (expected "
+			   "TCPDUMP_MAGIC).\n",
+			   filename);
+		fclose(f);
+		return NULL;
+	}
+	_pfh_out = _pfh_in;
+
+	if (_pfh_in.magic == TCPDUMP_CIGAM) SWAP32(_pfh_in.linktype);
+
+	if (_pfh_in.linktype != LINKTYPE_IEEE802_11
+		&& _pfh_in.linktype != LINKTYPE_PRISM_HEADER
+		&& _pfh_in.linktype != LINKTYPE_RADIOTAP_HDR
+		&& _pfh_in.linktype != LINKTYPE_PPI_HDR)
+	{
+		printf("\"%s\" isn't a regular 802.11 "
+			   "(wireless) capture.\n",
+			   filename);
+		fclose(f);
+		return NULL;
+	}
+	else if (_pfh_in.linktype == LINKTYPE_RADIOTAP_HDR)
+	{
+		printf("Radiotap header found. Parsing Radiotap is experimental.\n");
+	}
+	else if (_pfh_in.linktype == LINKTYPE_PPI_HDR)
+	{
+		printf("PPI not yet supported\n");
+		fclose(f);
+		return NULL;
+	}
+	RETVAL = f;
+OUTPUT:
+	RETVAL
+	
 
 FILE *
 openfile(filename, mode, fatal)
