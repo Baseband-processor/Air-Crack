@@ -828,7 +828,10 @@ int
 wi_set_mac(wi, mac)
 	WIF *wi
 	unsigned char *mac
-	
+CODE:
+		assert(wi->wi_set_mac);
+		return wi->wi_set_mac(wi, mac);
+
 int 
 wi_get_rate(wi)
 	WIF *wi
@@ -841,7 +844,9 @@ wi_set_rate(wi, rate)
 int
 wi_get_monitor(wi)
 	WIF *wi
-
+CODE:
+	assert(wi->wi_get_monitor);
+	return wi->wi_get_monitor(wi);
 	
 int
 wi_get_mtu(wi)
