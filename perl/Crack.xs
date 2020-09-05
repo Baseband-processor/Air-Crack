@@ -1925,3 +1925,39 @@ dump_stuff_msg(message, x,  size)
 	const void *message
 	void *x
 	unsigned int size
+
+void 
+show_wep_stats(B, force, table[PTW_KEYHSBYTES][PTW_n],  choices[KEYHSBYTES],  depth[KEYHSBYTES],  prod)
+	int B
+	int force
+	PTW_tableentry table[PTW_KEYHSBYTES][PTW_n]
+	int choices[KEYHSBYTES]
+	int depth[KEYHSBYTES]
+	int prod
+	
+char * 
+ti_name(struct tif * ti)
+
+int 
+ti_set_mtu(struct tif * ti, int mtu)
+
+int 
+ti_get_mtu(struct tif * ti)
+
+void 
+ti_close(struct tif * ti)
+int 
+ti_fd(struct tif * ti)
+
+int 
+ti_read(struct tif * ti, void * buf, int len)
+
+
+int 
+ti_write(struct tif * ti, void * buf, int len)
+
+int 
+ti_set_mac(struct tif * ti, unsigned char * mac)
+
+int 
+ti_set_ip(struct tif * ti, struct in_addr * ip)
