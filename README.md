@@ -79,11 +79,14 @@ Probably the project will grow even more, my main ideas are:
 
 - [ ] offer a full coverage for the Reaver header files
 - [ ] Integrate Air::Crack with other modules, those are
-   * Air::Lorcon2 -> interface to Lorcon2 library
+
+   * Air::Reaver -> interface to reaver WPS library
    * Air::Pcap -> interface to airpcap library
-   * Air::Reaver -> interface to reaver WPS tool
-   * Air::KRACK -> implementation of the KRACK attack
+   * Air::Lorcon2 -> interface to Lorcon2 library
+   * Air::Driver -> interface for handling supported linux wireless drivers
    * Air::FakeAP -> implementation of Fluxion
+   * Air::Writer -> write your own wireless driver
+   * Air::Wireless -> pure perl subroutines for managing basic wireless operations
    
 - [ ] Write a brief PDF manual about the six perl wireless-security module
 
