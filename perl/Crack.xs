@@ -361,68 +361,6 @@ typedef struct ac_crypto_engine_t  AC_CRYPTO;
 MODULE = Air::Crack   PACKAGE = Air::Crack
 PROTOTYPES: DISABLE
  
-void 
-airpcap_close()
-
-
-int 
-airpcap_get_mac(mac)
-	void * mac
-
-int
-airpcap_set_mac(mac)
-	void * mac
-
-int
-airpcap_sniff(buf, length, ri)
-	void * buf
-	int length
-	Rx * ri
-	
-
-int 
-airpcap_inject(buf, length, ti)
-	void * buf
-	int length
-	Tx * ti
-	
-int
-airpcap_init(parameter)
-	char *parameter
-
-int
-airpcap_set_chan(channel)
-	int channel
-
-int
-isAirpcapDevice(interface)
-	const char * interface
-
-int 
-getFrequencyFromChannel(channel)
-	int channel
-
-
-int
-getChannelFromFrequency(frequency)
-	int frequency
-CODE:
-	if (frequency >= 2412 && frequency <= 2472)
-		return (frequency - 2407) / 5;
-	else if (frequency == 2484)
-		return 14;
-	else if (frequency >= 4920 && frequency <= 6100)
-		return (frequency - 5000) / 5;
-	else
-		return -1;
-
-
-int 
-handshake(s)
-	int s
-CODE:
-	if (s)
-	return 0;
 	
 int 
 do_net_open(interface)
@@ -435,12 +373,14 @@ CODE:
 	port = get_ip_port(interface, ip, sizeof(ip) - 1);
 	if (port == -1) return -1;
 
-	memset(&s_in, 0, sizeof(SOCKADDR_IN *));
+	//memset(&s_in, 0, sizeof(SOCKADDR_IN *));
+	Zero(&s_in, 1, SOCKADDR_IN);
 	s_in.sin_family = PF_INET;
 	s_in.sin_port = htons(port);
 	if (!inet_aton(ip, &s_in.sin_addr)) return -1;
-	if ((s = socket(s_in.sin_family, SOCK_STREAM, IPPROTO_TCP)) == -1)
+	if ((s = socket(s_in.sin_family, SOCK_STREAM, IPPROTO_TCP)) == -1){
 		return -1;
+	}
 	printf("Connecting to %s port %d...\n", ip, port);
 
 	if (connect(s, (struct sockaddr *) &s_in, sizeof(s_in)) == -1)
@@ -449,8 +389,7 @@ CODE:
 		printf("Failed to connect\n");
 		return -1;
 	}
-	if (handshake(s) == -1)
-	{
+	if (handshake(s) == -1){
 		close(s);
 
 		printf("Failed to connect - handshake failed\n");
@@ -488,13 +427,17 @@ queue_get(pn, buf, len)
 CODE:
 	NETQUEUE * head = &pn->pn_queue;
 	NETQUEUE * q = head->q_next;
-	if (q == head) return 0;
+	if (q == head){
+		return 0;
+	}
 	assert(q->q_len <= len);
-	memcpy(buf, q->q_buf, q->q_len);
+	//memcpy(buf, q->q_buf, q->q_len);
+	Copy(q->q_buf, buf, q->q_len, 1);
 	queue_del(q);
 	queue_add(&pn->pn_queue_free, q);
-	return q->q_len;
-
+RETVAL = q->q_len;
+OUTPUT:
+	RETVAL
 
 int 
 net_write(wi, ts, dlt, h80211, len, ti)
@@ -511,12 +454,16 @@ CODE:
 	unsigned char * ptr = buf;
 	(void) ts;
 	(void) dlt;
-	if (ti)
-		memcpy(ptr, ti, sz); 
-	else
-		memset(ptr, 0, sizeof(*ti)); 
+	if (ti){
+		//memcpy(ptr, ti, sz);
+		Copy(ti, ptr, sz, 1);
+	}else{
+		//memset(ptr, 0, sizeof(*ti)); 
+		Zero(ptr, 1, ti);
+	}
 	ptr += sz;
-	memcpy(ptr, h80211, len);
+	//memcpy(ptr, h80211, len);
+	Copy(h80211, ptr, len, 1);
 	sz += len;
 	return net_cmd(pn, NET_WRITE, buf, sz);
 
@@ -526,7 +473,7 @@ net_set_channel(wi, channel)
 	int channel
 CODE:
 	uint32_t c = htonl(channel);
-	return net_cmd(wi_priv(wi), NET_SET_CHAN, &c, sizeof(c));
+	return ( net_cmd(wi_priv(wi), NET_SET_CHAN, &c, sizeof(c)) );
 
 
 int 
@@ -534,7 +481,7 @@ net_get_channel(wi)
 	WIF * wi
 CODE:
 	PRIVATE_NET * pn = wi_priv(wi);
-	return net_cmd(pn, NET_GET_CHAN, NULL, 0);
+	return ( net_cmd(pn, NET_GET_CHAN, NULL, 0) );
 
 int 
 net_set_rate(wi, rate)
@@ -542,7 +489,7 @@ net_set_rate(wi, rate)
 	int rate
 CODE:
 	uint32_t c = htonl(rate);
-	return net_cmd(wi_priv(wi), NET_SET_RATE, &c, sizeof(c));
+	return ( net_cmd(wi_priv(wi), NET_SET_RATE, &c, sizeof(c)) );
 
 
 int 
@@ -550,7 +497,7 @@ net_get_rate(wi)
 	WIF * wi
 CODE:
 	PRIVATE_NET * pn = wi_priv(wi);
-	return net_cmd(pn, NET_GET_RATE, NULL, 0);
+	return ( net_cmd(pn, NET_GET_RATE, NULL, 0) );
 
 
 int 
@@ -558,8 +505,6 @@ net_get_monitor(wi)
 	WIF *wi
 CODE:
 	return net_cmd(wi_priv(wi), NET_GET_MONITOR, NULL, 0);
-
-
 
 
 int 
@@ -579,12 +524,14 @@ CODE:
 	int l;
 	int ret;
 	l = queue_get(pn, buf, sizeof(buf));
-	if (!l)
-	{
+	if (!l) {
 		l = sizeof(buf);
 		cmd = net_get(pn->pn_s, buf, &l);
 
-		if (cmd == -1) return -1;
+		if (cmd == -1)
+		{
+			return -1;
+		}
 		if (cmd == NET_RC)
 		{
 			ret = ntohl((buf[0]));
@@ -606,15 +553,13 @@ CODE:
 	l -= sz;
 	assert(l > 0);
 	if (l > len) l = len;
-	memcpy(h80211, &bufc[sz], l);
-
-	if (dlt)
-	{
+	//memcpy(h80211, &bufc[sz], l);
+	Copy(&bufc[sz], h80211, l, 1);
+	if (dlt) {
 		*dlt = LINKTYPE_IEEE802_11;
 	}
 
-	if (ts)
-	{
+	if (ts) {
 		clock_gettime(CLOCK_REALTIME, ts);
 	}
 
@@ -623,30 +568,28 @@ CODE:
 WIF * 
 net_open(interface)
 	char * interface
-#CODE:
-#	WIF *wi;
-#	PRIVATE_NET * pn;
-#	int s;
-#	wi = wi_alloc(sizeof(*pn));
-#	wi->wi_read = net_read;
-#	wi->wi_write = net_write;
-#	wi->wi_set_channel = net_set_channel;
-#	wi->wi_get_channel = net_get_channel;
-#	wi->wi_set_rate = net_set_rate;
-#	wi->wi_get_rate = net_get_rate;
-#	wi->wi_close = net_close;
-#	wi->wi_fd = net_fd;
-#	wi->wi_get_mac = net_get_mac;
-#	wi->wi_get_monitor = net_get_monitor;
-#
-#	s = do_net_open(interface);
-#	pn = wi_priv(wi);
-#	pn->pn_s = s;
-#	pn->pn_queue->q_next = pn->pn_queue->q_prev = &pn->pn_queue;
-#	pn->pn_queue_free->q_next = pn->pn_queue_free->q_prev = &pn->pn_queue_free;
-#	RETVAL = wi;
-#OUTPUT:
-#RETVAL
+CODE:
+	WIF *wi;
+	PRIVATE_NET * pn;
+	int s;
+	wi = wi_alloc(sizeof(*pn));
+	wi->wi_read = net_read;
+	wi->wi_write = net_write;
+	wi->wi_set_channel = net_set_channel;
+	wi->wi_get_channel = net_get_channel;
+	wi->wi_set_rate = net_set_rate;
+	wi->wi_get_rate = net_get_rate;
+	wi->wi_close = net_close;
+	wi->wi_fd = net_fd;
+	wi->wi_get_mac = net_get_mac;
+	wi->wi_get_monitor = net_get_monitor;
+
+	s = do_net_open(interface);
+	pn = wi_priv(wi);
+	pn->pn_s = s;
+	pn->pn_queue->q_next = pn->pn_queue->q_prev = &pn->pn_queue;
+	pn->pn_queue_free->q_next = pn->pn_queue_free->q_prev = &pn->pn_queue_free;
+	return(wi);
 
 int
 net_read_exact(s, argoument,  length)
@@ -659,10 +602,12 @@ NETQUEUE *
 queue_get_slot(pn)
 	PRIVATE_NET * pn
 CODE:
-
+	int a;
 	NETQUEUE * q = pn->pn_queue_free->q_next;
-	if (pn->pn_queue_len++ > QUEUE_MAX) return NULL;
-	return malloc(sizeof(*q));
+	if (pn->pn_queue_len++ > QUEUE_MAX) { return NULL; }
+	//a = malloc(sizeof(*q));	
+	return( Newxz(a, q, 1) );
+	
 	
 void 
 net_enque(pn, buf, len)
@@ -675,7 +620,8 @@ CODE:
 	if (!q) return;
 	q->q_len = len;
 	assert((int) sizeof(q->q_buf) >= q->q_len);
-	memcpy(q->q_buf, buf, q->q_len);
+	//memcpy(q->q_buf, buf, q->q_len);
+	Copy(buf, q->q_buf, q->q_len);
 	queue_add(&pn->pn_queue, q);
 
 
@@ -692,15 +638,19 @@ CODE:
 	{
 		l = sizeof(buf);
 		c = net_get(pn->pn_s, buf, &l);
-		if (c < 0) return c;
-
-		if (c != NET_PACKET && c > 0) break;
-
-		if (c > 0) net_enque(pn, buf, l);
+		if (c < 0){
+			return c;
+		}
+		if (c != NET_PACKET && c > 0){
+			break;
+		}
+		if (c > 0){
+			net_enque(pn, buf, l);
 	}
-
+	}
 	assert(l <= *len);
-	memcpy(arg, buf, l);
+	//memcpy(arg, buf, l);
+	Copy(buf, arg, l, 1);
 	*len = l;
 	return c;
 	
@@ -769,8 +719,8 @@ CODE:
 	if (!wi) wi = net_open(interface);
 	if (!wi) wi = wi_open_osdep(interface);
 	if (!wi) return NULL;
-
-	strncpy(wi->wi_interface, interface, sizeof(wi->wi_interface) - 1);
+	//strncpy(wi->wi_interface, interface, sizeof(wi->wi_interface) - 1);
+	sv_setpvn(SvPV(wi->wi_interface), Newsvpv(interface), wi->wi_interface);
 	wi->wi_interface[sizeof(wi->wi_interface) - 1] = 0;
 	return wi;
 
@@ -785,7 +735,7 @@ wi_write(wi, ts, dlt, h80211, length, ti)
 	Tx * ti
 CODE:
 	assert(wi->wi_write);
-	return wi->wi_write(wi, ts, dlt, h80211, length, ti);
+	return ( wi->wi_write(wi, ts, dlt, h80211, length, ti) );
 
 int 
 wi_set_channel(wi, channel)
@@ -866,9 +816,9 @@ PTW_freeattackstate(state)
 
 float
 get_80211n_rate(width,  is_short_GI,  mcs_index)
-	const int width
-	const int is_short_GI
-	const int mcs_index
+	int width
+	int is_short_GI
+	int mcs_index
 
 float 
 get_80211ac_rate(width, is_short_GI, mcs_idx, amount_ss)
@@ -893,16 +843,14 @@ CODE:
 
 	fseek(opt.f_txt, 0, SEEK_SET);
 
-	fprintf(opt.f_txt,
-			"\r\nBSSID, First time seen, Last time seen, channel, Speed, "
-			"Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP, "
-			"ID-length, ESSID, Key\r\n");
+	fprintf(opt.f_txt, "\r\nBSSID, First time seen, Last time seen, channel, Speed,  Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP,  ID-length, ESSID, Key\r\n");
 
 	ap_cur = first_ap;
 
 	while (ap_cur != NULL)
 	{
-		if (memcmp(ap_cur->bssid, BROADCAST, 6) == 0)
+		//if (memcmp(ap_cur->bssid, BROADCAST, 6) == 0)
+		if(memNE(ap_cur->bssid, BROADCAST, 6) == 0)
 		{
 			ap_cur = ap_cur->next;
 			continue;
@@ -932,31 +880,15 @@ CODE:
 
 		ltime = localtime(&ap_cur->tinit);
 
-		fprintf(opt.f_txt,
-				"%04d-%02d-%02d %02d:%02d:%02d, ",
-				1900 + ltime->tm_year,
-				1 + ltime->tm_mon,
-				ltime->tm_mday,
-				ltime->tm_hour,
-				ltime->tm_min,
-				ltime->tm_sec);
+		fprintf(opt.f_txt, "%04d-%02d-%02d %02d:%02d:%02d, ", 1900 + ltime->tm_year, 1 + ltime->tm_mon, ltime->tm_mday, ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
 
 		ltime = localtime(&ap_cur->tlast);
 
-		fprintf(opt.f_txt,
-				"%04d-%02d-%02d %02d:%02d:%02d, ",
-				1900 + ltime->tm_year,
-				1 + ltime->tm_mon,
-				ltime->tm_mday,
-				ltime->tm_hour,
-				ltime->tm_min,
-				ltime->tm_sec);
+		fprintf(opt.f_txt, "%04d-%02d-%02d %02d:%02d:%02d, ", 1900 + ltime->tm_year, 1 + ltime->tm_mon, ltime->tm_mday, ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
 
 		fprintf(opt.f_txt, "%2d, %3d,", ap_cur->channel, ap_cur->max_speed);
 
-		if ((ap_cur->security
-			 & (STD_OPN | STD_WEP | STD_WPA | STD_WPA2 | AUTH_SAE | AUTH_OWE))
-			== 0)
+		if ((ap_cur->security & (STD_OPN | STD_WEP | STD_WPA | STD_WPA2 | AUTH_SAE | AUTH_OWE)) == 0)
 			fprintf(opt.f_txt, " ");
 		else
 		{
@@ -1050,8 +982,7 @@ CODE:
 		ap_cur = ap_cur->next;
 	}
 
-	fprintf(opt.f_txt, "\r\nStation MAC, First time seen, Last time seen, " 
-	"Power, # packets, BSSID, Probed ESSIDs\r\n");
+	fprintf(opt.f_txt, "\r\nStation MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs\r\n");
 
 	st_cur = first_st;
 
@@ -1098,9 +1029,11 @@ CODE:
 
 		fprintf(opt.f_txt, "%3d, %8lu, ", st_cur->power, st_cur->nb_pkt);
 
-		if (!memcmp(ap_cur->bssid, BROADCAST, 6))
+		//if (!memcmp(ap_cur->bssid, BROADCAST, 6))
+		if( memEQ(ap_cur->bssid, BROADCAST, 6) ){
 			fprintf(opt.f_txt, "(not associated) ,");
-		else
+			
+		}else{
 			fprintf(opt.f_txt,
 					"%02X:%02X:%02X:%02X:%02X:%02X,",
 					ap_cur->bssid[0],
@@ -1109,7 +1042,7 @@ CODE:
 					ap_cur->bssid[3],
 					ap_cur->bssid[4],
 					ap_cur->bssid[5]);
-
+		}
 		probes_written = 0;
 		for (i = 0; i < NB_PRB; i++)
 		{
@@ -1117,10 +1050,11 @@ CODE:
 
 			if (verifyssid((const unsigned char *) st_cur->probes[i]))
 			{
-				temp = (char *) calloc(
-					1, (st_cur->ssid_length[i] + 1) * sizeof(char));
+				//temp = (char *) calloc( 1, (st_cur->ssid_length[i] + 1) * sizeof(char));
+				Newxz(temp, st_cur->ssid_length[i] + 1, char );
 				ALLEGE(temp != NULL);
-				memcpy(temp, st_cur->probes[i], st_cur->ssid_length[i] + 1u);
+				//memcpy(temp, st_cur->probes[i], st_cur->ssid_length[i] + 1u);
+				Copy(st_cur->probes[i], temp, st_cur->ssid_length[i] + 1u, 1);
 			}
 			else
 			{
@@ -1138,7 +1072,7 @@ CODE:
 				fprintf(opt.f_txt, ",%s", temp);
 			}
 
-			free(temp);
+			SafeFree(temp);
 		}
 
 		fprintf(opt.f_txt, "\r\n");
@@ -1147,7 +1081,7 @@ CODE:
 	}
 
 	fprintf(opt.f_txt, "\r\n");
-	fflush(opt.f_txt);
+	PerlIO_flush(opt.f_txt);
 
 	return (0);
 
